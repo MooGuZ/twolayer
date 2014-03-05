@@ -20,7 +20,7 @@ for trial = 1:num_trials
             avalind = gsingle(avalind);
         end
         % calculate coefficients for these data via gradient descent
-        [w dtphase_E exit_flag]=infer_w(dtphase,avalind,m,p);
+        [w, dtphase_E, exit_flag]=infer_w(dtphase,avalind,m,p);
         %if ~exit_flag
         %    p.phasetrans.eta_w = .8*p.phasetrans.eta_w;
         %else

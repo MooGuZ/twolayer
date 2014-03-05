@@ -36,11 +36,11 @@ warning('off','MATLAB:nearlySingularMatrix')
 run_name = '1';
 
 % specify model dimensions
-m.patch_sz = 20; % image patch size: square patch (patch_sz x patch_sz)
+m.patch_sz = 32; % image patch size: square patch (patch_sz x patch_sz)
 % m.M =     256;  % this parameter is determined by the whitening proceedure
-m.N =       400;  % firstlayer basis functions
-m.L =       100;  % phasetrans basis functions
-m.K =       100;  % ampmodel basis functions
+m.N =      1024;  % firstlayer basis functions
+m.L =       160;  % phasetrans basis functions
+m.K =       160;  % ampmodel basis functions
 
 % specify priors
 p.firstlayer.prior = 'slow_cauchy';
@@ -78,20 +78,20 @@ moogu_start_time = now;
 fname=[sprintf('patchsz%d_A%dx%d_D%d_B%d_%s',m.patch_sz,m.M,m.N,m.L,m.K,run_name) '_%s.mat'];
 
 % display parameters
-display_every=1000;
+display_every=0;
 save_every=5000;
 
 %% learn firstlayer basis functions (m.A)
 
-epochs = 80;
-num_trials = 1000;
+epochs = 160;
+num_trials = 3200;
 
 for epoch = 1:epochs
     learn_firstlayer
 end
 
 % anneal
-epochs = 20;
+epochs = 40;
 p.firstlayer.eta_dA_target = .25*p.firstlayer.eta_dA_target;
 
 for epoch = 1:epochs
@@ -110,7 +110,7 @@ save_model(sprintf(fname,sprintf('learn_firstlayer_t=%d',m.t)),m,p);
 p.firstlayer.prior = 'slow_gauss';
 p.firstlayer.a_gauss_beta = 8.;
 
-p.load_segments = 1000; % p.patches_load*p.load_segments*p.segment_szt ~= total_time_slices
+p.load_segments = 3200; % p.patches_load*p.load_segments*p.segment_szt ~= total_time_slices
 collect_firstlayer_responses
 
 eval(['save data/' sprintf(fname,'Z_responses') ' m p Z_store']);
@@ -124,7 +124,7 @@ if ~exist('Z_store','var')
 end
 
 epochs = 5;
-num_trials = 1000;
+num_trials = 2000;
 
 for epoch = 1:epochs
     learn_phasetrans
@@ -164,7 +164,7 @@ end
 p.batch_size = 100;
 
 epochs = 5;
-num_trials = 1000;
+num_trials = 2000;
 
 for epoch = 1:epochs
     learn_ampmodel
