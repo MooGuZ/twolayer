@@ -28,9 +28,9 @@
 
 %% Initialize parameters
 clear
-reset(RandStream.getDefaultStream);
+reset(RandStream.getGlobalStream);
 
-warning('off','MATLAB:divideByZero')
+% warning('off','MATLAB:divideByZero')
 warning('off','MATLAB:nearlySingularMatrix')
 
 run_name = '1';

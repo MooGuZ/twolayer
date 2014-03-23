@@ -1,4 +1,4 @@
-function chunk = load_datachunk(m,p)
+function chunk = load_datachunk(~,p)
 
 rind = ceil(rand*(p.num_chunks-p.cons_chunks));
 chunk = load_movie(rind,p.cons_chunks,p.imszt,p.data_root,p.imsz);

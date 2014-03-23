@@ -1,4 +1,4 @@
-function [x,f,exitflag,output] = minFunc(funObj,x0,options,varargin)
+function [x,f,exitflag,output] = minFunc_ind(funObj,x0,options,varargin)
 % minFunc(funObj,x0,options,varargin)
 %
 % Unconstrained optimizer using a line search strategy
