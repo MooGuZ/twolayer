@@ -1,0 +1,21 @@
+#PBS -N MPSeparation-LearnFirstLayer
+#PBS -q gpufermi
+#PBS -l nodes=1:gpus=2,walltime=13:00:00,mem=3gb
+#PBS -j oe
+
+export CUDA_VISIBLE_DEVICES=`gpu-free`
+
+echo "Your job is running on $PBS_NODEFILE"
+
+module load matlab
+module load cuda
+
+cd ~/MPSeparation/
+
+matlab -nodisplay
+learnFirstLayer
+exit
+
+cd ~/MPSeparation
+mv MPSeparation-LearnFirstLayer.* ./output/
+

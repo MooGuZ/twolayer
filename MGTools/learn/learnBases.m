@@ -32,9 +32,9 @@ for iEpoch = 1 : nEpoch
     for c = 1 : nChunks
         % Put chunk into GPU's memory
         if p.use_gpu
-            D = gsingle(reshape(chunks{index(c)},vsize,hsize));
+            D = gsingle(reshape(chunks{index(c)},vsize,hsize,p.imszt));
         else
-            D = reshape(chunks{index(c)},vsize,hsize);
+            D = reshape(chunks{index(c)},vsize,hsize,p.imszt);
         end
         % Learn Bases from current chunk
         for iter = 1 : p.patches_load
@@ -48,11 +48,12 @@ for iEpoch = 1 : nEpoch
                 [Z,I_E,fexit] = infer_Z(X,m,p);
             end
             [m,p] = adapt_firstlayer(Z,I_E,m,p);
-            m.t = m.t + 1;
+            m.t(1) = m.t(1) + 1;
         end
     end
+    iterstr = strrep(mat2str(m.t),' ',',');
     % save learning states
-    save_model([p.autosave_path,'Iteration(',num2str(m.t),').mat'],m,p);
+    save_model([p.autosave_path,'FirstLayerBases-Iteration',iterstr,'.mat'],m,p);
     % Output Infomation in Console
-    disp(['Iteration(',num2str(m.t),') DONE @ ',datestr(now)]);
+    disp(['LearningIteration',iterstr,' DONE @ ',datestr(now)]);
 end
