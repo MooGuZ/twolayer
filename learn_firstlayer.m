@@ -27,7 +27,7 @@ for trial = 1:num_trials
             X = gsingle(X);
         end
         % calculate coefficients for these data via gradient descent
-        [Z I_E exit_flag]=infer_Z(X,m,p);        
+        [Z,I_E,exit_flag]=infer_Z(X,m,p);        
 
     end
     [m,p] = adapt_firstlayer(Z,I_E,m,p);
