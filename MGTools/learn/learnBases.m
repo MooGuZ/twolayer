@@ -19,17 +19,22 @@ hpos   = 1 + p.BUFF;
 vrange = vsize - m.patch_sz + 1;
 hrange = hsize - m.patch_sz + 1;
 
+% Read chunks into memory in advance
+chunks = cell(p.num_chunks,1);
+for i = 1 : p.num_chunks
+    chunks{i} = readdata(m,p,'chunks',i,'patchsize',[vsize,hsize],'position',[vpos,hpos]);
+end
+
 disp(['First-Layer-Bases Learning (',num2str(nEpoch),' Epoches) start @ ',datestr(now)]);
 for iEpoch = 1 : nEpoch
-    % Read Data
-    data  = readdata(m,p,'chunks',ceil(rand(nChunks,1)*p.num_chunks),...
-        'patchsize',[vsize,hsize],'position',[vpos,hpos]);
+    % Generate random chunk sequence
+    index = randi(p.num_chunks,nChunks,1);
     for c = 1 : nChunks
         % Put chunk into GPU's memory
         if p.use_gpu
-            D = gsingle(reshape(data(:,(c-1)*p.imszt+1:c*p.imszt),vsize,hsize));
+            D = gsingle(reshape(chunks{index(c)},vsize,hsize));
         else
-            D = reshape(data(:,(c-1)*p.imszt+1:c*p.imszt),vsize,hsize,p.imszt);
+            D = reshape(chunks{index(c)},vsize,hsize);
         end
         % Learn Bases from current chunk
         for iter = 1 : p.patches_load
