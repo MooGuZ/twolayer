@@ -14,7 +14,7 @@ switch p.firstlayer.basis_method
         m.A=m.A-eta_dA;
         if max(abs(eta_dA(:))) > p.firstlayer.eta_dA_target
             p.firstlayer.A_eta = p.firstlayer.A_eta*p.firstlayer.down_factor;
-            fprintf('\neta_dA(:) above target, decreasing... to A_eta=%f',p.firstlayer.A_eta)
+            %fprintf('\neta_dA(:) above target, decreasing... to A_eta=%f',p.firstlayer.A_eta)
         else
             p.firstlayer.A_eta = p.firstlayer.A_eta*p.firstlayer.up_factor;
         end
@@ -38,4 +38,4 @@ if p.renorm_length
     m.A=complex(real(m.A)*diag(1./realnormA'),imag(m.A)*diag(1./imagnormA'));
 end
 
-fprintf('\r\n mean(dA)=%6.6f, max(dA)=%6.6f\r \n',double(mean(abs(eta_dA(:)))), double(max(abs(eta_dA(:)))));
+%fprintf('\r\n mean(dA)=%6.6f, max(dA)=%6.6f\r \n',double(mean(abs(eta_dA(:)))), double(max(abs(eta_dA(:)))));

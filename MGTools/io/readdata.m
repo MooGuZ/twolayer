@@ -27,14 +27,16 @@ else
     pos = ps.Results.position;
 end
 
-anim = zeros(prod(psize),numel(chunks)*numel(frames)); aind = 1;
+anim = zeros(prod(psize),numel(chunks)*numel(frames));
+aind = 1; nframe = numel(frames);
 for c = 1 : numel(chunks)
     % Read whole data chunk
     fid  = fopen([p.data_root,'/chunk',num2str(chunks(c))],'r','b');
     data = reshape(fread(fid,p.imsz*p.imsz*p.imszt,'float'),p.imsz,p.imsz,p.imszt);
-    anim(:,aind) = ...
-        reshape(data(pos(1):pos(1)+psize(1)-1, pos(2):pos(2)+psize(2)-1, frames),prod(psize),1);
-    aind = aind + 1;
+    anim(:,aind:aind+nframe-1) = ...
+        reshape(data(pos(1):pos(1)+psize(1)-1, pos(2):pos(2)+psize(2)-1, frames), ...
+        prod(psize),nframe);
+    aind = aind + nframe;
     fclose(fid);
 end 
 
