@@ -2,7 +2,7 @@ function [m,p] = learnBases(m,p,nEpoch)
 % LEARNBASES learn bases in first layer
 
 % number of iteration per save
-nSave = 20;
+nSave = 10000;
 % number of chunks read in one time
 nChunks = ceil(nSave / p.patches_load);
 
@@ -25,7 +25,7 @@ for i = 1 : p.num_chunks
     chunks{i} = readdata(m,p,'chunks',i,'patchsize',[vsize,hsize],'position',[vpos,hpos]);
 end
 
-disp(['First-Layer-Bases Learning (',num2str(nEpoch),' Epoches) start @ ',datestr(now)]);
+fprintf('\nFirst-Layer-Bases Learning (%2d Epoches) start @ %s\n',nEpoch,datestr(now));
 for iEpoch = 1 : nEpoch
     % Generate random chunk sequence
     index = randi(p.num_chunks,nChunks,1);
@@ -55,5 +55,5 @@ for iEpoch = 1 : nEpoch
     % save learning states
     save_model([p.autosave_path,'FirstLayerBases-Iteration',iterstr,'.mat'],m,p);
     % Output Infomation in Console
-    disp(['LearningIteration',iterstr,' DONE @ ',datestr(now)]);
+    disp(['Learning Iteration',iterstr,' DONE  @ ',datestr(now)]);
 end
