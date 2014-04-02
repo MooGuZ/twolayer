@@ -2,7 +2,7 @@ function dispFirstlayer(m)
 
 if isfield(m,'dewhitenMatrix')
     A = m.dewhitenMatrix*m.A;
-    dispBase(A,'dewhitenBase');
+    % dispBase(A,'dewhitenBase');
     A = m.zerophaseMatrix*A;
     dispBase(A,'zerophaseBase');
 else
