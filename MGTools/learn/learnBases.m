@@ -1,8 +1,10 @@
-function [m,p] = learnBases(m,p,nEpoch)
+function [m,p] = learnBases(m,p,nEpoch,nSave)
 % LEARNBASES learn bases in first layer
 
 % number of iteration per save
-nSave = 10000;
+if ~exist('nSave','var')
+    nSave = 10000;
+end
 % number of chunks read in one time
 nChunks = ceil(nSave / p.patches_load);
 
@@ -55,5 +57,7 @@ for iEpoch = 1 : nEpoch
     % save learning states
     save_model([p.autosave_path,'FirstLayerBases-Iteration',iterstr,'.mat'],m,p);
     % Output Infomation in Console
-    disp(['Learning Iteration',iterstr,' DONE  @ ',datestr(now)]);
+    disp(['Learning Iteration ',iterstr,' DONE @ ',datestr(now)]);
+end
+
 end

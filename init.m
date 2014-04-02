@@ -1,7 +1,7 @@
 function [m,p] = init(m,p)
 
 %% misc
-m.t = 1;
+m.t = [0,0,0];
 
 %% init data %%
 
@@ -80,8 +80,10 @@ if p.whiten_patches
     p.whitening.X_noise_fraction = 8.;
     p.whitening.X_noise_var = .01;
     % run whitening
+    fprintf('Learning Whitening Parameters ...');
     p.whitening.whiten_num_patches = min(400*m.patch_sz^2,200000);%160000;
     [m, p] = learn_whitening(m,p);
+    fprintf('DONE\n');
 end
 
 %% init basis functions %%

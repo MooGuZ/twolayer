@@ -25,7 +25,7 @@ function F = read_chunk(dataroot,i,imsz,imszt)
 % function F = read_chunk(dataroot,i,imsz,imszt)
 
 filename=sprintf('%s/chunk%d',dataroot,i);
-fprintf('%s\n',filename);
+% fprintf('%s\n',filename);
 fid=fopen(filename,'r','b');
 F=reshape(fread(fid,imsz*imsz*imszt,'float'),imsz,imsz,imszt);
 fclose(fid);

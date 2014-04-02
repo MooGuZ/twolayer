@@ -1,5 +1,6 @@
 function anim = readdata(m,p,varargin)
 % READDATA read data chunks according to setting
+%  readdata(m,p) default read 1 patch from data directory according to M and P.
 
 % Input Parsing
 ps = inputParser;
