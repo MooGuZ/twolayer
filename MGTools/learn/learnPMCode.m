@@ -1,4 +1,4 @@
-function [m,p] = learnPCode(m,p,nEpoch,nSave)
+function [m,p] = learnPMCode(m,p,nEpoch,nSave)
 % LEARNPCODE learn pattern and motion bases (codes) in second layer
 
 % number of iteration per save
