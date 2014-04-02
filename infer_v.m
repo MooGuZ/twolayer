@@ -1,4 +1,4 @@
-function [v loga_error exit_flag] = infer_v(loga,m,p)
+function [v,loga_error,exit_flag] = infer_v(loga,m,p)
 % infer_v.m - infer v ampmodel variables from first layer responses
 %
 % function [v loga_error exit_flag] = infer_v(loga,m,p)
@@ -42,8 +42,8 @@ switch p.ampmodel.inference_method
                 max_dv     = p.ampmodel.eta_v*max(abs(dv(:)));
                 SNR = -10*log10(var(loga_error(:))/var(loga(:)));
 
-                fprintf('\rSNR=%2.2f, E=%6.0f, E0=%6.0f, dE=%6.0f, dv=%6.4f',...
-                    double(SNR),double(E),double(E0),double(E-E0),double(max_dv));
+%                 fprintf('\rSNR=%2.2f, E=%6.0f, E0=%6.0f, dE=%6.0f, dv=%6.4f',...
+%                     double(SNR),double(E),double(E0),double(E-E0),double(max_dv));
                 if p.show_p
                     display_infer_v(loga,loga_hat,v,m,p);
                 end
@@ -58,7 +58,7 @@ switch p.ampmodel.inference_method
         
         [E, ~, ~, loga_error] = obj_fun_v(v,loga,m,p);
         SNR = -10*log10(var(loga_error(:))/var(loga(:)));
-        fprintf('\rE=%02.4e, SNR=%2.2f',double(E),double(SNR));
+%         fprintf('\rE=%02.4e, SNR=%2.2f',double(E),double(SNR));
         
         [v, E, ~] = minFunc_ind(@obj_fun_v,v,p.ampmodel.minFunc_ind_Opts,loga,m,p);
         v = reshape(v,m.K,szt);
@@ -67,7 +67,7 @@ switch p.ampmodel.inference_method
         
         % Compute measures
         SNR = -10*log10(var(loga_error(:))/var(loga(:)));
-        fprintf('\rE=%02.4e, SNR=%2.2f\r\n',double(E),double(SNR));
+%         fprintf('\rE=%02.4e, SNR=%2.2f\r\n',double(E),double(SNR));
 
         if p.show_p
             display_infer_v(loga,loga_hat,v,m,p);
@@ -79,7 +79,7 @@ switch p.ampmodel.inference_method
     case {'thresholding','tc'}
         [loga_error, ~] = calc_loga_error(loga,zeros(m.K,size(loga,2)),m,p);
 
-        fprintf('\rloga_error=%2.2e\r\n',sum(loga_error(:).^2));
+%         fprintf('\rloga_error=%2.2e\r\n',sum(loga_error(:).^2));
         v = tc(double(m.B),double(loga),p.ampmodel.v_laplace_beta,p.ampmodel.tcparams.adapt,p.ampmodel.tcparams.eta,p.ampmodel.tcparams.num_iterations,p.ampmodel.tcparams.thresh_type);
 
         [loga_error, loga_hat] = calc_loga_error(loga,v,m,p);
@@ -87,7 +87,7 @@ switch p.ampmodel.inference_method
         % Compute measures
         SNR = -10*log10(var(loga_error(:))/var(loga(:)));
         v_sparsity = sum(S_laplace(v(:),p.ampmodel.v_laplace_beta));
-        fprintf('\rSNR=%2.2f, loga_error=%2.2e, v_spars=%2.2e\r\n',SNR,sum(loga_error(:).^2),v_sparsity);
+%         fprintf('\rSNR=%2.2f, loga_error=%2.2e, v_spars=%2.2e\r\n',SNR,sum(loga_error(:).^2),v_sparsity);
         
         if p.show_p
             display_infer_v(loga,loga_hat,v,m,p);
@@ -97,7 +97,7 @@ switch p.ampmodel.inference_method
         exit_flag=1;
 end
 
-fprintf('.\n')
+% fprintf('.\n')
 
 function display_infer_v(loga,loga_hat,v,m,p)
 

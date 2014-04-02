@@ -41,8 +41,8 @@ switch p.phasetrans.inference_method
                 % Check for convergence
                 max_dw     = p.phasetrans.eta_w*max(abs(dw(:)));
 
-                fprintf('\rE=%6.0f, E0=%6.0f, dE=%6.0f, dw=%6.4f',...
-                    double(E),double(E0),double(E-E0),double(max_dw));
+%                 fprintf('\rE=%6.0f, E0=%6.0f, dE=%6.0f, dw=%6.4f',...
+%                     double(E),double(E0),double(E-E0),double(max_dw));
                 if p.show_p
                     display_infer_w(dtphase,dtphase_hat,avalind,w,m,p)
                 end
@@ -59,7 +59,7 @@ switch p.phasetrans.inference_method
         
         [E, ~, ~, dtphase_error] = obj_fun_w(w,dtphase,avalind,m,p);
         SNR = -10*log10(var(1-cos(dtphase_error(:)))/var(1-cos(avalind(:).*dtphase(:))));
-        fprintf('\rE=%02.4e, SNR=%2.2f',double(E),double(SNR));
+%         fprintf('\rE=%02.4e, SNR=%2.2f',double(E),double(SNR));
 
         [w, E, ~] = minFunc_ind(@obj_fun_w,w,p.phasetrans.minFunc_ind_Opts,dtphase,avalind,m,p);
         w = reshape(w,m.L,szt);
@@ -67,7 +67,7 @@ switch p.phasetrans.inference_method
         [dtphase_error, dtphase_hat] = calc_dtphase_error(dtphase,avalind,w,m,p);
 
         SNR = -10*log10(var(1-cos(dtphase_error(:)))/var(1-cos(avalind(:).*dtphase(:))));
-        fprintf('\rE=%02.4e, SNR=%2.2f\r\n',double(E),double(SNR));
+%         fprintf('\rE=%02.4e, SNR=%2.2f\r\n',double(E),double(SNR));
         
         if p.show_p
             display_infer_w(dtphase,dtphase_hat,avalind,w,m,p)
@@ -78,7 +78,7 @@ switch p.phasetrans.inference_method
 
 end
 
-fprintf('.')
+% fprintf('.')
 function display_infer_w(dtphase,dtphase_hat,avalind,w,m,p)
 
 dtphase_hat = dtphase_hat + -2*pi*sign(dtphase_hat).*round(abs(dtphase_hat)./(2*pi));
