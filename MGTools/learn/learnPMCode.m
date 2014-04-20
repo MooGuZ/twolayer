@@ -12,7 +12,7 @@ end
 if exist('respfile','var')
     load(respfile);
 else
-    fprintf('Generating First Layer Responds ... \n')
+    fprintf('Generating First Layer Responds start @ %s\n',datestr(now));
     % Parameters for Data Frames
     vsize  = p.imsz-2*p.BUFF-p.topmargin;
     hsize  = p.imsz-2*p.BUFF;
@@ -34,8 +34,8 @@ else
     nSegments = ceil(p.load_segments / p.num_chunks);
     p.load_segments = nSegments * p.num_chunks;
     % Initialize storage for Amplitude and Phase
-    R1L.logAmp = zeros(m.N,p.imszt*nSegments*p.num_chunks);
-    R1L.dPhase = zeros(m.N,p.imszt*nSegments*p.num_chunks);
+    R1L.logAmp = zeros(m.N,p.imszt*nSegments*p.num_chunks,'single');
+    R1L.dPhase = zeros(m.N,p.imszt*nSegments*p.num_chunks,'single');
     for c = 1 : p.num_chunks
         fprintf('Chunk %2d ... ',c);
         % Put chunk into GPU's memory
@@ -74,7 +74,7 @@ else
     end
     
     % Save First Layer Responds
-    respfile = ['R1L-',m.patch_sz,'-',datestr(now),'.mat'];
+    respfile = ['R1L-PATCH',num2str(m.patch_sz),'-',datestr(now),'.mat'];
     save(['data/',respfile],'R1L','m','p');
     fprintf('Save responds of first layer into %s\n',respfile);
 end

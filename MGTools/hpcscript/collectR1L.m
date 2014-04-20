@@ -15,11 +15,13 @@ load init/init.mat
 % Open GPU option
 p.use_gpu = true;
 
+p.load_segments = 7280;
+
 % Initial Random Number Generator
-rng('shuffle');
+% rng('shuffle');
 
 % Learn Bases in First Layer
-[m,p]=learnBases(m,p,20,10000);
+[m,p]=learnPMCode(m,p,1,1);
 
 % Rewrite Initial States
 save init/init.mat m p
