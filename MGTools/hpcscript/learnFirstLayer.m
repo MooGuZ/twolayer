@@ -10,10 +10,15 @@ addpath([root,'code'], ...
     [root,'code/tools/minFunc_ind/logistic']);
 
 % Load Initial State
-load init.mat
+load init/init.mat
 
 % Open GPU option
 p.use_gpu = true;
 
 % Learn Bases in First Layer
-learnBases(m,p,10);
+[m,p]=learnBases(m,p,16);
+
+% Rewrite Initial States
+save init/init.mat m p
+
+% END
