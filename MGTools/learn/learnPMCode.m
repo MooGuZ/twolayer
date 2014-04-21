@@ -1,86 +1,66 @@
-function [m,p] = learnPMCode(m,p,nEpoch,nSave,respfile)
+function [m,p,snr] = learnPMCode(m,p,nEpoch,nSave,respfile)
 % LEARNPCODE learn pattern and motion bases (codes) in second layer
+%
+%   [m,p,snr] = learnPMCode(m,p,nEpoch,nSave,respfile)
+%
+% MooGu Z. <hzhu@case.edu>
+% April 20, 2014 - Version 0.1
 
 % number of iteration per save
 if ~exist('nSave','var'), nSave = 10000; end
 
-% Prepare for GPU computing
-if p.use_gpu
-    m.A = gsingle(m.A);
+% Load First Layer Responds
+if ~exist('respfile','var')
+    [m,p,respfile] = cbaserespond(m,p);
 end
+load(respfile,'R1L');
 
-if exist('respfile','var')
-    load(respfile);
-else
-    fprintf('Generating First Layer Responds start @ %s\n',datestr(now));
-    % Parameters for Data Frames
-    vsize  = p.imsz-2*p.BUFF-p.topmargin;
-    hsize  = p.imsz-2*p.BUFF;
-    vpos   = 1 + p.topmargin+p.BUFF;
-    hpos   = 1 + p.BUFF;
-    vrange = vsize - m.patch_sz + 1;
-    hrange = hsize - m.patch_sz + 1;
-    
-    % Read chunks into memory in advance
-    fprintf('Reading Data Chunks ... ');
-    chunks = cell(p.num_chunks,1);
-    for i = 1 : p.num_chunks
-        chunks{i} = readdata(m,p,'chunks',i,'patchsize', ...
-            [vsize,hsize],'position',[vpos,hpos]);
-    end
-    fprintf('DONE\n');
-    
-    % number of chunks read into memory
-    nSegments = ceil(p.load_segments / p.num_chunks);
-    p.load_segments = nSegments * p.num_chunks;
-    % Initialize storage for Amplitude and Phase
-    R1L.logAmp = zeros(m.N,p.imszt*nSegments*p.num_chunks,'single');
-    R1L.dPhase = zeros(m.N,p.imszt*nSegments*p.num_chunks,'single');
-    for c = 1 : p.num_chunks
-        fprintf('Chunk %2d ... ',c);
-        % Put chunk into GPU's memory
+% Initialize SNR
+snr.logamp = zeros(nEpoch,1);
+snr.dphase = zeros(nEpoch,1);
+
+% Choose Test Set
+tindex = randi(p.load_segments,130,1);
+
+% Segment Index Function
+segs = @(n) (n-1)*p.imszt+1;
+sege = @(n) n*p.imszt;
+
+fprintf('\nPattern-Bases Learning (%d Epoches) START @ %s\n',nEpoch,datestr(now));
+
+for i = 1 : nEpoch
+    I = randi(p.load_segments,nSave,1);
+    for j = 1 : nSave
+        % ==COLLECT DATA==
         if p.use_gpu
-            D = gsingle(reshape(chunks{c},vsize,hsize,p.imszt));
+            P = gsingle(R1L.dPhase(:,segs(I(j))+1:sege(I(j))));
+            A = gsingle(R1L.logAmp(:,segs(I(j)):sege(I(j))));
+            valid = gsingle(1);
         else
-            D = single(reshape(chunks{c},vsize,hsize,p.imszt));
+            P = single(R1L.dPhase(:,segs(I(j))+1:sege(I(j))));
+            A = single(R1L.logAmp(:,segs(I(j)):sege(I(j))));
+            valid = single(1);
         end
-        % Calculate Responds from First Layer
-        for i = 1 : nSegments
-            vs = ceil(vrange*rand(1));
-            hs = ceil(hrange*rand(1));
-            X  = reshape(D(vs:vs+m.patch_sz-1,hs:hs+m.patch_sz-1,:), ...
-                m.patch_sz^2,p.imszt);
-            X  = m.whitenMatrix * bsxfun(@minus,X,m.imageMean);
-            Z  = infer_Z(X,m,p);
-            sind = ((c-1)*nSegments+i-1)*p.imszt + 1;
-            eind = ((c-1)*nSegments+i)*p.imszt;
-            R1L.logAmp(:,sind:eind) = log(abs(Z));
-            R1L.dPhase(:,sind:eind) = ...
-                [angle(Z(:,1)),angle(Z(:,2:end))-angle(Z(:,1:end-1))];
-        end
-        fprintf('DONE (%d Segments Loaded)\n',i);
+        % ==LEARN MOTION CODE BASES==
+        % Roll Phase Difference into [-pi,pi]
+        P(P < -pi) = P(P < -pi) + 2*pi;
+        P(P >  pi) = P(P >  pi) - 2*pi;
+        % Infering and Adapting
+        [W,error] = infer_w(P,valid,m,p);
+        [m,p] = adapt_phasetrans(W,error,m,p);    
+        % ==LEARN FORM CODE BASES==
+        % Centralize and Scale
+        A = bsxfun(@minus,A,m.loga_means);
+        A = bsxfun(@times,A,m.loga_factors);
+        % Infering and Adapting
+        
+        
     end
+    % SNR Calculation
     
-    % Release Chunks
-    clear('chunks');
-    
-    % Get statistic profiles of amplitude
-    m.loga_means = zeros(m.N,1);
-    m.loga_factors = m.loga_means;
-    % Calculating in For-Loop for memory issues
-    for i = 1 : m.N
-        m.loga_means(i) = mean(R1L.logAmp(i,:));
-        m.loga_factors(i) = sqrt(1/(10*var(R1L.logAmp(i,:))));
-    end
-    
-    % Save First Layer Responds
-    respfile = ['R1L-PATCH',num2str(m.patch_sz),'-',datestr(now),'.mat'];
-    save(['data/',respfile],'R1L','m','p','-v7.3');
-    fprintf('Save responds of first layer into %s\n',respfile);
+    % Save Model and Parameters
 end
 
-fprintf('\nPattern-Bases Learning (%2d Epoches) start @ %s\n',nEpoch,datestr(now));
+fprintf('Pattern-Bases Learning (%d Epoches) END @ %s\n',datestr(now));
 
-
-fprintf('Pattern-Bases Learning Process DONE @ %s\n',datestr(now));
 end
