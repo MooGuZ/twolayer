@@ -72,7 +72,7 @@ for e = 1 : numel(nEpoch)
             if p.use_gpu
                 P = gsingle(R1L.dPhase(:,segs(I(j))+1:sege(I(j))));
                 A = gsingle(R1L.logAmp(:,segs(I(j)):sege(I(j))));
-                valid = gsingle(1);
+                valid = gsingle(single(1));
             else
                 P = single(R1L.dPhase(:,segs(I(j))+1:sege(I(j))));
                 A = single(R1L.logAmp(:,segs(I(j)):sege(I(j))));
