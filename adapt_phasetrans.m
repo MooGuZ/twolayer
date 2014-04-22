@@ -14,7 +14,7 @@ switch p.phasetrans.basis_method
         
         if max(abs(eta_dD(:))) > p.phasetrans.eta_dD_target
             p.phasetrans.D_eta = p.phasetrans.D_eta*p.phasetrans.down_factor;
-            fprintf('\neta_dD(:) above target, decreasing... to D_eta=%f',p.phasetrans.D_eta)
+%             fprintf('\neta_dD(:) above target, decreasing... to D_eta=%f',p.phasetrans.D_eta)
         else
             p.phasetrans.D_eta = p.phasetrans.D_eta*p.phasetrans.up_factor;
         end
@@ -30,4 +30,4 @@ if p.renorm_length
     m.D = m.D*diag(1./normD');
 end
 
-fprintf('\r\n mean(dD)=%6.6f, max(dD)=%6.6f, var(dD)=%6.6f \r \n',double(mean(abs(eta_dD(:)))), double(max(abs(eta_dD(:)))), double(var(eta_dD(:))));
+% fprintf('\r\n mean(dD)=%6.6f, max(dD)=%6.6f, var(dD)=%6.6f \r \n',double(mean(abs(eta_dD(:)))), double(max(abs(eta_dD(:)))), double(var(eta_dD(:))));

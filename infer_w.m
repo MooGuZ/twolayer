@@ -58,7 +58,7 @@ switch p.phasetrans.inference_method
         w = reshape(w,numel(w),1);
         
         [E, ~, ~, dtphase_error] = obj_fun_w(w,dtphase,avalind,m,p);
-        SNR = -10*log10(var(1-cos(dtphase_error(:)))/var(1-cos(avalind(:).*dtphase(:))));
+%         SNR = -10*log10(var(1-cos(dtphase_error(:)))/var(1-cos(avalind(:).*dtphase(:))));
 %         fprintf('\rE=%02.4e, SNR=%2.2f',double(E),double(SNR));
 
         [w, E, ~] = minFunc_ind(@obj_fun_w,w,p.phasetrans.minFunc_ind_Opts,dtphase,avalind,m,p);
@@ -66,7 +66,7 @@ switch p.phasetrans.inference_method
 
         [dtphase_error, dtphase_hat] = calc_dtphase_error(dtphase,avalind,w,m,p);
 
-        SNR = -10*log10(var(1-cos(dtphase_error(:)))/var(1-cos(avalind(:).*dtphase(:))));
+%         SNR = -10*log10(var(1-cos(dtphase_error(:)))/var(1-cos(avalind(:).*dtphase(:))));
 %         fprintf('\rE=%02.4e, SNR=%2.2f\r\n',double(E),double(SNR));
         
         if p.show_p

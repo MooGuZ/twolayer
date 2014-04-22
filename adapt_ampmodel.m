@@ -16,12 +16,12 @@ switch p.ampmodel.basis_method
         
         if max(abs(eta_dB(:))) > p.ampmodel.eta_dB_target
             p.ampmodel.B_eta = p.ampmodel.B_eta*p.ampmodel.down_factor;
-            fprintf('\neta_dB(:) above target, decreasing... to B_eta=%f',p.ampmodel.B_eta)
+%             fprintf('\neta_dB(:) above target, decreasing... to B_eta=%f',p.ampmodel.B_eta)
         else
             p.ampmodel.B_eta = p.ampmodel.B_eta*p.ampmodel.up_factor;
         end
         
-        fprintf('\r\n mean(dB)=%6.6f, max(dB)=%6.6f, var(dB)=%6.6f \r \n',double(mean(abs(eta_dB(:)))), double(max(abs(eta_dB(:)))), double(var(eta_dB(:))));
+%         fprintf('\r\n mean(dB)=%6.6f, max(dB)=%6.6f, var(dB)=%6.6f \r \n',double(mean(abs(eta_dB(:)))), double(max(abs(eta_dB(:)))), double(var(eta_dB(:))));
 
     case 'minFunc_ind_wd'        
         B = reshape(m.B,numel(m.B),1);

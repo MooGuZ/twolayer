@@ -4,7 +4,8 @@ function save_model(fname,m,p)
 % fprintf(['\nWriting file: ' fname '...']);
 if p.use_gpu
     m.A = double(m.A);
+    m.B = double(m.B);
     m.D = double(m.D);
 end
-eval(['save state/' fname ' m p']);
+eval(['save ' fname ' m p']);
 % fprintf(' Done.\n');

@@ -57,7 +57,7 @@ switch p.ampmodel.inference_method
         v = reshape(v,numel(v),1);
         
         [E, ~, ~, loga_error] = obj_fun_v(v,loga,m,p);
-        SNR = -10*log10(var(loga_error(:))/var(loga(:)));
+%         SNR = -10*log10(var(loga_error(:))/var(loga(:)));
 %         fprintf('\rE=%02.4e, SNR=%2.2f',double(E),double(SNR));
         
         [v, E, ~] = minFunc_ind(@obj_fun_v,v,p.ampmodel.minFunc_ind_Opts,loga,m,p);
@@ -66,7 +66,7 @@ switch p.ampmodel.inference_method
         [loga_error, loga_hat] = calc_loga_error(loga,v,m,p);
         
         % Compute measures
-        SNR = -10*log10(var(loga_error(:))/var(loga(:)));
+%         SNR = -10*log10(var(loga_error(:))/var(loga(:)));
 %         fprintf('\rE=%02.4e, SNR=%2.2f\r\n',double(E),double(SNR));
 
         if p.show_p
