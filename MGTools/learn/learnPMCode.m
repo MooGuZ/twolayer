@@ -61,6 +61,7 @@ if p.use_gpu
     m.D = gsingle(m.D);
 end
 
+valid = 1; % Valid Matrix shrunk to singular
 for e = 1 : numel(nEpoch)
     % Scale Error Target in Learning
     p.phasetrans.eta_dD_target = p.phasetrans.eta_dD_target * tFactor(e);
@@ -72,11 +73,9 @@ for e = 1 : numel(nEpoch)
             if p.use_gpu
                 P = gsingle(R1L.dPhase(:,segs(I(j))+1:sege(I(j))));
                 A = gsingle(R1L.logAmp(:,segs(I(j)):sege(I(j))));
-                valid = gsingle(single(1));
             else
                 P = single(R1L.dPhase(:,segs(I(j))+1:sege(I(j))));
                 A = single(R1L.logAmp(:,segs(I(j)):sege(I(j))));
-                valid = single(1);
             end
             % ==LEARN MOTION CODE BASES==
             % Roll Phase Difference into [-pi,pi]
@@ -106,13 +105,11 @@ for e = 1 : numel(nEpoch)
                     segs(testset(j))+1:sege(testset(j))));
                 A = gsingle(R1L.logAmp(:, ...
                     segs(testset(j)):sege(testset(j))));
-                valid = gsingle(1);
             else
                 P = single(R1L.dPhase(:, ...
                     segs(testset(j))+1:sege(testset(j))));
                 A = single(R1L.logAmp(:, ...
                     segs(testset(j)):sege(testset(j))));
-                valid = single(1);
             end
             % ==LEARN MOTION CODE BASES==
             % Roll Phase Difference into [-pi,pi]
