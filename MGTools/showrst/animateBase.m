@@ -61,7 +61,11 @@ for b = 1 : nbase
             imshow(I,cmap); pause(delay);
             nframe = nframe * niter;
         case 'gif'
-            gifname = [fname,'[',num2str(b),'].gif'];
+            if nbase == 1
+                gifname = [fname,'.gif'];
+            else
+                gifname = [fname,'[',num2str(b),'].gif'];
+            end
             imwrite(I,cmap,gifname,'gif','DelayTime',delay);
         otherwise
             error('[AnimateBase] Undefined Output Method!');
@@ -80,7 +84,7 @@ for b = 1 : nbase
         % Output
         switch omode
             case 'disp'
-                figure(f); imshow(I,cmap); pause(delay);
+                imshow(I,cmap); pause(delay);
             case 'gif'
                 imwrite(I,cmap,gifname,'gif','WriteMode','append',...
                     'DelayTime',delay);

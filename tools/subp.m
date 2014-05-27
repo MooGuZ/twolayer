@@ -1,4 +1,4 @@
-function h = subp(nr,nc,j, spacing)
+function h = subp(nr,nc,j,spacing)
 % function h = subp(nr,nc,j, spacing)
 
 if nargin < 4,

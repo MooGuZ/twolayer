@@ -1,15 +1,18 @@
-function dispCode(C,crds,tstr)
+function dispCode(C,crds,tstr,f)
 
-swPrint = exist('tstr','var');
+swPrint = exist('tstr','var') && ~isempty(tstr);
 
 [~,ncode] = size(C);
 
-f = figure();
+if exist('f','var') && ~isempty(f)
+    figure(f); clf;
+else
+    figure();
+end
 set(gcf,'Color','k');
 set(gcf,'inverthardcopy','off');
 
 for j = 1 : ncode
-    figure(f); clf;
 	[~,index] = sort(abs(C(:,j)),'descend');
 	val = C(index,j) / max(abs(C(:,j)));
 	% Spacial Domain

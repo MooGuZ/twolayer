@@ -77,5 +77,6 @@ end
 respfile = ['R1L-PATCH',num2str(m.patch_sz),'-',datestr(now),'.mat'];
 save(['data/',respfile],'R1L','m','p','-v7.3');
 fprintf('Save responds of first layer into %s @ %s\n',respfile,datestr(now));
+respfile = ['./data/',respfile];
 
 end
