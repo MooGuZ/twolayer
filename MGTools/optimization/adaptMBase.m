@@ -13,7 +13,7 @@ switch p.phasetrans.basis_method
   case {'minFunc_ind','minFunc_ind_lbfgs'}
     [Base,loglh,exitflag] = minFunc(@evalMBase,m.D(:), ...
                                     p.phasetrans.minFunc_ind_Opts,Code,dPhase,Mask);
-    m.D = reshape(Base,N,nbase);
+    Base = reshape(Base,N,nbase);
 end
 
 end

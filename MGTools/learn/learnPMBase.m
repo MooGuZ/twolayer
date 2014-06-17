@@ -18,7 +18,7 @@ else
     nSave = 1000;
 end
 
-% Load First Layer Responds
+Load First Layer Responds
 if isfield(param,'rfile')
     m.rfile = param.rfile;
 else
@@ -56,7 +56,8 @@ if p.use_gpu
 end
 
 for i = 1 : nEpoch
-    I = randi(p.load_segments,nSave,1);
+%     I = randi(p.load_segments,nSave,1);
+    I = testset(randi(numel(testset),nSave,1));
     for j = 1 : nSave
         if p.use_gpu
             P = gsingle(R1L.dPhase(:,segs(I(j))+1:sege(I(j))));
@@ -71,10 +72,10 @@ for i = 1 : nEpoch
         P(P >  pi) = P(P >  pi) - 2*pi;
         % Calculate Amplitude Mask
         mask = (A >= p.phasetrans.a_thresh);
-        mask = mask(1:end-1) & mask(2:end);
+        mask = mask(:,1:end-1) & mask(:,2:end);
         % Infering and Adapting
         W = inferMCode(P,mask,m,p);
-        m = adaptMBase(W,P,mask,m,p);
+        m.D = adaptMBase(W,P,mask,m,p);
         % Update counter
         m.t(2) = m.t(2) + 1;
         % ==INFER PATTERN CODES==
@@ -83,7 +84,7 @@ for i = 1 : nEpoch
         A = bsxfun(@times,A,m.loga_factors);
         % Infering and Adapting
         V = inferPCode(A,m,p);
-        m = adaptPBase(V,A,m,p);
+        m.B = adaptPBase(V,A,m,p);
         % Update counter
         m.t(3) = m.t(3) + 1;
     end
@@ -107,23 +108,21 @@ for i = 1 : nEpoch
         P(P >  pi) = P(P >  pi) - 2*pi;
         % Calculate Amplitude Mask
         mask = (A >= p.phasetrans.a_thresh);
-        mask = mask(1:end-1) & mask(2:end);
+        mask = mask(:,1:end-1) & mask(:,2:end);
         % Infering and Calculating SNR
         [W,likelihood] = inferMCode(P,mask,m,p);
-        noise = sum((mask.*(P - m.D*W)).^2);
-        snr.dphase(i) = snr.dphase(i) + ...
-            10*log10(sum(P(:).^2)/noise);
         loglh.dphase(i) = loglh.dphase(i) + likelihood;
+        snr.dphase(i) = snr.dphase(i) + ...
+            10*log10(sum(P(:).^2)/sum(sum((mask.*(P - m.D*W)).^2)));
         % ==LEARN FORM CODE BASES==
         % Centralize and Scale
         A = bsxfun(@minus,A,m.loga_means);
         A = bsxfun(@times,A,m.loga_factors);
         % Infering and Calculating SNR
         [V,likelihood] = inferPCode(A,m,p);
-        noise = evalPBase(m.B,V,P);
-        snr.logamp(i) = snr.logamp(i) + ...
-            10*log10(sum(A(:).^2)/noise);
         loglh.logamp(i) = loglh.logamp(i) + likelihood;
+        snr.logamp(i) = snr.logamp(i) + ...
+            10*log10(sum(A(:).^2)/sum(sum((A - m.B*V).^2)));
     end
     snr.dphase(i) = snr.dphase(i) / testsz;
     snr.logamp(i) = snr.logamp(i) / testsz;
@@ -135,8 +134,12 @@ for i = 1 : nEpoch
     save_model([p.autosave_path,'state/PMCodeBases-Iteration', ...
         iterstr,'.mat'],m,p);
     % Output Infomation in Console
-    fprintf('Learning Iteration %s DONE @ %s | SNR(A:%.2e,P:%.2e)\n', ...
-        iterstr,datestr(now),snr.logamp(iepoch),snr.dphase(iepoch));
+    fprintf(['Learning Iteration %s DONE @ %s | SNR(A:%.2e,P:%.2e)', ...
+        ' LOG-LH(A:%.2e,P:%.2e)\n'], iterstr,datestr(now), ...
+        snr.logamp(i),snr.dphase(i),loglh.logamp(i),loglh.dphase(i));
+%     fprintf(['%s | SNR(A:%.2e,P:%.2e)', ...
+%         ' LOG-LH(A:%.2e,P:%.2e)\n'], iterstr, ...
+%         snr.logamp(i),snr.dphase(i),loglh.logamp(i),loglh.dphase(i));
 end
 
 % Convert Bases into GSINGLE
@@ -146,6 +149,6 @@ if p.use_gpu
 end
 
 fprintf('Pattern-Bases Learning (%d Epoches) END @ %s\n', ...
-    sum(nEpoch),datestr(now));
+    nEpoch,datestr(now));
 
 end

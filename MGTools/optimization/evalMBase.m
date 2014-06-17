@@ -13,7 +13,7 @@ Base = reshape(Base,N,nbase);
 delta = Mask .* (dPhase - Base * Code);
 
 % Calculate Log-Likelihood
-loglh = numel(noise)-sum(cos(delta(:))); % Noise(von Mises Distribution)
+loglh = numel(delta)-sum(cos(delta(:))); % Noise(von Mises Distribution)
 
 % Calculate Gradient for Log-Likelihood
 if nargout > 1

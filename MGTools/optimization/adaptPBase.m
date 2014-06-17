@@ -13,7 +13,7 @@ switch p.ampmodel.basis_method
   case {'minFunc_ind','minFunc_ind_lbfgs'}
     [Base,noise,exitflag] = minFunc(@evalPBase,m.B(:), ...
                                     p.ampmodel.minFunc_ind_Opts,Code,logAmp);
-    m.B = reshape(Base,N,nbase);
+    Base = reshape(Base,N,nbase);
 end
 
 end
