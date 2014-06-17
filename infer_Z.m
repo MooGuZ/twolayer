@@ -107,7 +107,7 @@ switch p.firstlayer.inference_method
         aphase0 = [reshape(a,numel(a),1); reshape(phase,numel(phase),1)];
 
         [E, ~, ~, Ierror] = obj_fun_z(aphase0,I,m,p);
-        SNR = -10*log10(var(Ierror(:))/var(I(:)));        
+        %SNR = -10*log10(var(Ierror(:))/var(I(:)));        
         %fprintf('\rE=%02.4e, SNR=%2.2f',double(E),double(SNR));
         
         [aphase, E, ~] = minFunc_ind(@obj_fun_z,aphase0,p.firstlayer.minFunc_ind_Opts,I,m,p);
@@ -116,7 +116,7 @@ switch p.firstlayer.inference_method
         
         [Ierror, Ih] = calc_Ierror(I,a,phase,m,p);
         
-        SNR = -10*log10(var(Ierror(:))/var(I(:)));
+        %SNR = -10*log10(var(Ierror(:))/var(I(:)));
         %fprintf('\rE=%02.4e, SNR=%2.2f\r\n',double(E),double(SNR));
         
         if p.show_p

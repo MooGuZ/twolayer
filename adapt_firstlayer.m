@@ -39,3 +39,5 @@ if p.renorm_length
 end
 
 %fprintf('\r\n mean(dA)=%6.6f, max(dA)=%6.6f\r \n',double(mean(abs(eta_dA(:)))), double(max(abs(eta_dA(:)))));
+
+end
