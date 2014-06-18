@@ -31,7 +31,7 @@ p.phasetrans.inference_method='minFunc_ind';
 % data
 p.data.type = dataType;
 p.data.path = [dataPath,'/'];
-if p.data.type = 'fvp'
+if strcmp(p.data.type,'fvp')
     p.data.extname = '.gif';
     % Create Name List for Data Files
     flist = dir([p.data.path,'*',p.data.extname]);

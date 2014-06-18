@@ -19,7 +19,7 @@ dataPath = [root,'data/fvp-20140602'];
 % Initialize Complex Bases Model
 [m,p] = modelInitParameters(frmSize,dataType,dataPath);
 if p.whitening.enable
-    [Data,m,p] = modelInitWhitening(m,p);
+    [m,p] = modelInitWhitening(m,p);
 end
 [m,p] = modelInitBases(m,p);
 

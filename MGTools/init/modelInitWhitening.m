@@ -8,12 +8,19 @@ function [m,p] = modelInitWhitening(m,p)
 
 % ======== Load Data =======
 Data = zeros(m.patch_sz^2,p.data.scope*p.data.nframe,'double');
-% Random Number Genereating
-s = randi(p.data.quantity,p.data.scope,1);
-% Load GIF Files
-for i = 1 : p.data.scope
-    Data(:,(i-1)*p.data.nframe+1:i*p.data.nframe) ...
-        = gif2anim([p.data.path,p.data.nameList{s(i)}]);
+if p.data.scope >= p.data.quantity
+    for i = 1 : p.data.scope
+        Data(:,(i-1)*p.data.nframe+1:i*p.data.nframe) ...
+            = gif2anim([p.data.path,p.data.nameList{i}],1:p.data.nframe);
+    end
+else  
+    % Random Number Genereating
+    s = randi(p.data.quantity,p.data.scope,1);
+    % Load GIF Files
+    for i = 1 : p.data.scope
+        Data(:,(i-1)*p.data.nframe+1:i*p.data.nframe) ...
+            = gif2anim([p.data.path,p.data.nameList{s(i)}],1:p.data.nframe);
+    end
 end
 
 % ======= Parameter Estimation =======
@@ -28,7 +35,7 @@ C = Data * Data' / (p.data.scope*p.data.nframe); clear Data
 [eigVal,index]  = sort(diag(eigVal),'descend');
 eigVec = eigVec(:,index);
 % Save in Model
-m.imageEigVals = diag(eigVal);
+m.imageEigVals = sparse(diag(eigVal));
 m.imageEigVecs = eigVec;
 % ======= Determine Dimension of Whitening Signal =======
 varCutoff = p.whitening.pixel_noise_variance_cutoff_ratio * m.pixel_noise_variance;

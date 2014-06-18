@@ -1,7 +1,11 @@
-function frames = gif2anim(fname)
+function frames = gif2anim(fname,idx)
 % GIF2ANIM read GIF file into animation in column frames
 
-[I,cmap] = imread(fname,'Frames','all');
+if exist('idx','var')
+    [I,cmap] = imread(fname,'gif',idx);
+else
+    [I,cmap] = imread(fname,'gif','Frames','all');
+end
 
 isz = size(I);
 assert(isz(3)==1,'[GIF2ANIM] GIF file cannot be recognized!');

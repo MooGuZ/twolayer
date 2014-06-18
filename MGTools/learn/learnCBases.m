@@ -19,14 +19,14 @@ end
 
 % Load Data into Memory Only Once
 if p.data.scope >= p.data.quantity
-    Data = loadDataBatch(p.data);
+    Data = loadDataBatch(m,p);
 end
 
 fprintf('\nFirst-Layer-Bases Learning (%2d Epoches) start @ %s\n',nEpoch,datestr(now));
 for iEpoch = 1 : nEpoch
     % Load Data for each Epoch, if necessary
     if p.data.scope < p.data.quantity
-        Data = loadDataBatch(p.data);
+        Data = loadDataBatch(m,p);
     end
     % Generate random sequence
     index = randi(p.data.scope,nSave,1);
@@ -43,14 +43,15 @@ for iEpoch = 1 : nEpoch
             video = m.whitenMatrix * bsxfun(@minus,video,m.imageMean);
         end
         % Infer Complex Bases Responds
-        [Z,I_E,fexit] = infer_Z(video,m,p);
+        [Z,I_E] = infer_Z(video,m,p);
         % Adapt Complex Bases
         [m,p] = adapt_firstlayer(Z,I_E,m,p);
         m.t(1) = m.t(1) + 1;
     end
     iterstr = strrep(mat2str(m.t),' ',',');
     % save learning states
-    save_model([p.autosave.path,'state/FirstLayerBases-Iteration',iterstr,'.mat'],m,p);
+    save_model([p.autosave.path,'state/FirstLayerBases-Iteration', ...
+        iterstr,'.mat'],m,p);
     % Output Infomation in Console
     disp(['Learning Iteration ',iterstr,' DONE @ ',datestr(now)]);
 end
