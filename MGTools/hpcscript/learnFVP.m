@@ -23,6 +23,9 @@ if p.whitening.enable
 end
 [m,p] = modelInitBases(m,p);
 
+% Save Initial Model
+save_model([root,'state/init-20140617.mat'],m,p);
+
 % Utilize GPU's Power
 p.use_gpu = true;
 
@@ -35,6 +38,6 @@ p.firstlayer.eta_dA_target = .25 * p.firstlayer.eta_dA_target;
 [m,p] = learnCBases(m,p,32,10000);
 
 % Save Final Status
-save init/final.mat m p
+save_model([root,'init/final-20140617.mat'],m,p);
 
 % END

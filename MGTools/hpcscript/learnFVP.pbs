@@ -1,6 +1,6 @@
-#PBS -N MPSeparation-LearnFirstLayer
+#PBS -N ComplexBasesModel-FVP
 #PBS -q gpufermi
-#PBS -l nodes=1:gpus=2,walltime=17:00:00,mem=13gb
+#PBS -l nodes=1:gpus=2,walltime=50:00:00,mem=13gb
 #PBS -j oe
 #PBS -m be
 
@@ -14,5 +14,5 @@ module load cuda
 cd ~/MPSeparation/
 
 matlab -nodisplay
-collectR1L
+learnFVP
 exit

@@ -12,18 +12,28 @@ addpath([root,'code'], ...
 % Load Initial State
 load init/init.mat
 
-% Open GPU option
+% Close GPU option
 p.use_gpu = true;
 
-p.load_segments = 7280;
-
 % Initial Random Number Generator
-% rng('shuffle');
+rng('shuffle');
 
+warning('off','MATLAB:nearlySingularMatrix');
+
+% Setup Parameters
+param.epoches = [13];
+param.tfactor = [1];
+param.nsave = 10000;
+param.testsz = 200;
+param.rfile = './data/R1L-PATCH32-21-Apr-2014 12:06:50.mat';
 % Learn Bases in First Layer
-[m,p] = cbaserespond(m,p);
+[m,p,snr] = learnPMCode(m,p,param);
+
+% Reopen GPU option
+% p.use_gpu = true;
 
 % Rewrite Initial States
 save init/init.mat m p
+save state/snr-20140422.mat snr
 
 % END

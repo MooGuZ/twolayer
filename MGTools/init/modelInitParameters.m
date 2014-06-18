@@ -46,7 +46,7 @@ end
 p.autosave.path = './';
 
 % Counter
-m.t = zeros(3,1);
+m.t = zeros(1,3);
 
 % Whitening
 p.whitening.enable = true;
