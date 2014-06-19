@@ -43,7 +43,7 @@ if strcmp(p.data.type,'fvp')
 end
 
 % Save Path
-p.autosave.path = './';
+p.autosave.path = './state/';
 
 % Counter
 m.t = zeros(1,3);

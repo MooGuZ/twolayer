@@ -7,5 +7,6 @@ if p.use_gpu
     m.B = double(m.B);
     m.D = double(m.D);
 end
-eval(['save ' fname ' m p']);
+% eval(['save ' fname ' m p']);
+save(fname,'m','p');
 % fprintf(' Done.\n');

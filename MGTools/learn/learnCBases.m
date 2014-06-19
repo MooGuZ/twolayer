@@ -50,7 +50,7 @@ for iEpoch = 1 : nEpoch
     end
     iterstr = strrep(mat2str(m.t),' ',',');
     % save learning states
-    save_model([p.autosave.path,'state/FirstLayerBases-Iteration', ...
+    save_model([p.autosave.path,'FirstLayerBases-Iteration', ...
         iterstr,'.mat'],m,p);
     % Output Infomation in Console
     disp(['Learning Iteration ',iterstr,' DONE @ ',datestr(now)]);
