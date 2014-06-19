@@ -7,6 +7,6 @@ if isfield(m,'dewhitenMatrix')
     A = m.zerophaseMatrix*m.dewhitenMatrix*A;
 end
 % Write animation into GIF files
-animateBase(A,'real','gif','Filename','animationBases/real/Base');
+animateBase(A,'real','gif','Filename','zerophaseBase');
 
 end

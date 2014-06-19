@@ -23,7 +23,7 @@ p.parse(A,varargin{:});
 
 omode  = p.Results.outmode;
 dmode  = p.Results.drawmode;
-fname  = ['./fig/',p.Results.Filename];
+fname  = p.Results.Filename;
 t      = p.Results.T;
 niter  = ceil(p.Results.nIteration);
 nframe = ceil(p.Results.nframe);

@@ -43,10 +43,12 @@ for j = 1 : nbase
     % Print Figure
     if swPrint
         print(gcf,'-dpng',...
-            ['./fig/',tstr,'[',num2str(j),'].png']);
+            [tstr,'[',num2str(j),'].png']);
+    else
+        f = figure();
     end
 end
 
-if swPrint, close(f); end
+close(f);
 
 end
