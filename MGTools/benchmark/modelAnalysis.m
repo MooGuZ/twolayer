@@ -94,7 +94,7 @@ while(ana.nproc < ndata)
             end
         end
         % ======= modify model profile =======
-        p.use_gpu = false;
+        p.use_gpu = exist('gsingle','builtin');
         % ====================================
         for j = 1 : nbatch
             [Z,noise] = infer_Z(Data(:,:,j),m,p);

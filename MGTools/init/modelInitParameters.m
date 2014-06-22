@@ -55,8 +55,9 @@ p.whitening.pixel_noise_variance_cutoff_ratio = 1.25;
 p.whitening.X_noise_fraction = 8.0;
 p.whitening.X_noise_var = 0.01;
 
-% misc
-p.use_gpu = false;      % this flag will use the GPU through the Jacket interface
+% MISC
+% this flag will use the GPU through the Jacket interface
+p.use_gpu = exist('gsingle','var');
 p.renorm_length = 1;    % renorm basis function lengths after each iteration
 p.normalize_crop = 0;   % normalize the data before inference
 p.whiten_patches = 1;   % operate in the whitened domain
