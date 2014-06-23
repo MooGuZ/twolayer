@@ -36,6 +36,10 @@ else
     datap.anaFilePath = './';
 end
 
+if datap.anaFilePath(end) ~= '/'
+    datap.anaFilePath = [datap.anaFilePath,'/'];
+end
+
 if exist('batchSize','var')
     datap.batchSize = batchSize;
 else
