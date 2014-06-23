@@ -1,4 +1,5 @@
-function [modelp,datap] = anaParamSetup(modelPath,dataPath,anaPath,batchSize,distBoxNum)
+function [modelp,datap] = anaParamSetup(modelPath,dataPath,anaPath, ...
+    batchSize,distBoxNum,unitOrder)
 % ANAPARAMSETUP generate parameter structure of model and data preparing as the
 % intput argument of function MODELANALYSIS.
 %
@@ -12,6 +13,7 @@ function [modelp,datap] = anaParamSetup(modelPath,dataPath,anaPath,batchSize,dis
 % MooGu Z. <hzhu@case.edu>
 % -------------------------------------------------------------------------------------
 % Version 0.1 [June 21, 2014] - Start Version
+% Version 0.2 [June 23, 2014] - Add support for semilog distribution plots
 
 
 modelp.path = modelPath;
@@ -21,6 +23,16 @@ end
 % search for model profile files
 flist = dir([modelp.path,'*.mat']);
 modelp.nameList = {flist(:).name};
+% find number strings in model profile names
+findNumStr = @(fname) regexp(fname,'-?\d+\.?\d*|-?\d*\.?\d+','match');
+numStr = cellfun(findNumStr,modelp.nameList,'UniformOutput',false);
+% calculate number of iterations for each model profile
+niterCal = @(str) sum(cellfun(@str2num,str));
+modelp.IDList = cellfun(niterCal,numStr);
+% sort by number of iterations
+[modelp.IDList,index] = sort(modelp.IDList,'ascend');
+% reorganize nameList
+modelp.nameList = {modelp.nameList{index}};
 
 datap.path = dataPath;
 if datap.path(end) ~= '/'
@@ -49,7 +61,13 @@ end
 if exist('distBoxNum','var')
     modelp.distBoxNum = distBoxNum;
 else
-    modelp.distBoxNum = 700;
+    modelp.distBoxNum = 100;
+end
+
+if exist('unitOrder','var')
+    modelp.unitOrder = unitOrder;
+else
+    modelp.unitOrder = -3;
 end
 
 load([modelp.path,modelp.nameList{1}]);

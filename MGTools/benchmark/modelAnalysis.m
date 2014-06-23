@@ -14,6 +14,7 @@ function ana = modelAnalysis(inArgA,inArgB)
 % ----------------------------------------------------------------------------------
 % Version 0.1 [June 18, 2014] - Start Version
 % Version 0.2 [June 21, 2014] - Change input argumen into general form 
+% Version 0.3 [June 23, 2014] - Add support to log-scale distribution plots
 
 % if no ANA exist, initialize one
 switch (nargin)
@@ -37,6 +38,7 @@ switch (nargin)
     
     ana.model.path = inArgA.path;
     ana.model.nameList = inArgA.nameList;
+    ana.model.IDList = inArgA.IDList;
     ana.model.nbase = inArgA.baseQuantity;
     
     ana.model.num = numel(inArgA.nameList);
@@ -45,8 +47,14 @@ switch (nargin)
     ana.noise.likelihood = zeros(ana.model.num,ana.data.num);
     
     ana.resp.dist.nbox = inArgA.distBoxNum;
-    ana.resp.dist.ampcrd = linspace(0,1,ana.resp.dist.nbox);
-    ana.resp.dist.dampcrd = linspace(-1,1,ana.resp.dist.nbox);
+    ana.resp.dist.unit = inArgA.unitOrder;
+
+    % calculate coordinates and box size of distribution plots
+    ana.resp.dist.crd = logspace(ana.resp.dist.unit,1,ana.resp.dist.nbox);    
+    ana.resp.dist.bsz = [ ...
+        .5 * sum(ana.resp.dist.crd(1:2)), ...
+        diff(conv(ana.resp.dist.crd,[.5,.5],'valid'),1,2), ...
+        Inf];
     
     ana.resp.dist.amp = zeros(ana.model.num,ana.resp.dist.nbox);
     ana.resp.dist.damp = zeros(ana.model.num,ana.resp.dist.nbox);
@@ -106,9 +114,9 @@ while(ana.nproc < ndata)
             amp = abs(Z); damp = diff(amp,1,2);
             
             ana.resp.dist.amp(i,:) = ana.resp.dist.amp(i,:) ...
-                + hist(amp(:),ana.resp.dist.ampcrd);
+                + hist(amp(:),ana.resp.dist.crd);
             ana.resp.dist.damp(i,:) = ana.resp.dist.damp(i,:) ...
-                + hist(damp(:),ana.resp.dist.dampcrd);
+                + hist(abs(damp(:)),ana.resp.dist.crd);
             
             ana.resp.prob.sparse(i,ana.nproc+j) = ...
                 beta * sum(log(1+(amp(:)/sigma).^2));
@@ -132,7 +140,7 @@ while(ana.nproc < ndata)
     % Save Result
     ana.finishtime = datestr(now);
     save(ana.fileName,'ana');
-    fprintf('%-4d Video Clips Have Been Analyzed @ %s\n', ...
+    fprintf('%4d Video Clips Have Been Analyzed @ %s\n', ...
         ana.nproc,datestr(now));
 end
     

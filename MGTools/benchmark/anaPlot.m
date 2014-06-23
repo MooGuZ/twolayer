@@ -97,17 +97,16 @@ else
     index = [1,ceil(nmodel/2),nmodel];
 end
 % get iteration number of each model profile
-iterNum  = cell(size(index));
+iterNum  = ana.model.IDList(index);
 distAmp  = zeros(numel(index),nbox);
 distDAmp = zeros(numel(index),nbox);
 for i = 1 : numel(index)
-    iterNum{i} = sum(cellfun(@str2num,regexp(ana.model.nameList{index(i)}, ...
-        '-?\d+\.?\d*|-?\d*\.?\d+','match')));
-    distAmp(i,:) = ana.resp.dist.amp(index(i),:) / ...
-        sum(ana.resp.dist.amp(index(i),:));
-    distDAmp(i,:) = ana.resp.dist.damp(index(i),:) / ...
-        sum(ana.resp.dist.damp(index(i),:));
-
+    distAmp(i,:) = (ana.resp.dist.amp(index(i),:) / ...
+        sum(ana.resp.dist.amp(index(i),:))) ./ ...
+        ana.resp.dist.bsz;
+    distDAmp(i,:) = (ana.resp.dist.damp(index(i),:) / ...
+        sum(ana.resp.dist.damp(index(i),:))) ./ ...
+        ana.resp.dist.bsz;
 end
 % define a temporal function to compose legends string
 lgdstr = @(num) (['iteration - ',num2str(num)]);
@@ -116,33 +115,37 @@ cmap = cmapgen(numel(index));
 axHandle = zeros(1,numel(index));
 % distribution of 'a'
 if ~swPrint, f = figure(); else clf; end
+set(gca,'XScale','log');
+set(gca,'YScale','log');
 hold on
 for i = 1 : numel(index)
-    plot(ana.resp.dist.ampcrd,distAmp(i,:),'o-k','MarkerSize',7);
-    axHandle(i) = plot(ana.resp.dist.ampcrd,distAmp(i,:),'.', ...
+    plot(ana.resp.dist.crd,distAmp(i,:),'o-k','MarkerSize',7);
+    axHandle(i) = plot(ana.resp.dist.crd,distAmp(i,:),'.', ...
         'MarkerSize',13,'Color',cmap(i,:));
 end
-legend(axHandle,cellfun(lgdstr,iterNum,'UniformOutput',false)); 
+legend(axHandle,arrayfun(lgdstr,iterNum,'UniformOutput',false)); 
 grid on; hold off;
 title('Distribution of a');
-xlabel('Value of a');
-ylabel('Frequency');
+xlabel('log(a)');
+ylabel('Log-Frequency');
 if swPrint
     print(f,'-depsc2','-r300',[savePath,'aDist.eps']);
 end
 % distribution of 'delta a'
 if ~swPrint, f = figure(); else clf; end
+set(gca,'XScale','log');
+set(gca,'YScale','log');
 hold on
 for i = 1 : numel(index)
-    plot(ana.resp.dist.dampcrd,distDAmp(i,:),'o-k','MarkerSize',7);
-    axHandle(i) = plot(ana.resp.dist.dampcrd,distDAmp(i,:),'.', ...
+    plot(ana.resp.dist.crd,distDAmp(i,:),'o-k','MarkerSize',7);
+    axHandle(i) = plot(ana.resp.dist.crd,distDAmp(i,:),'.', ...
         'MarkerSize',13,'Color',cmap(i,:));
 end
-legend(axHandle,cellfun(lgdstr,iterNum,'UniformOutput',false)); 
+legend(axHandle,arrayfun(lgdstr,iterNum,'UniformOutput',false)); 
 grid on; hold off;
 title('Distribution of \Delta a');
-xlabel('Value of \Delta a');
-ylabel('Frequency');
+xlabel('log(\Delta a)');
+ylabel('Log-Frequency');
 if swPrint
     print(f,'-depsc2','-r300',[savePath,'daDist.eps']);
 end
