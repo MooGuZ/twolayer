@@ -21,6 +21,10 @@ if swPrint
         system(['mkdir -p "',savePath,'"']);
     end
 
+    if savePath(end) ~= '/'
+        savePath = [savePath,'/'];
+    end
+
     f = figure('visible','off');
 end
 
