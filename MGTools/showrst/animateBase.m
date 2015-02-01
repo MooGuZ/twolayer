@@ -48,23 +48,24 @@ for b = 1 : nbase
     % Generate First Frame
     switch dmode
         case 'comb'
-            [I,cmap] = rgb2ind(comp2img(Base),ncolor);
+            [I,cmap] = rgb2ind(mat2img(Base),ncolor);
         case 'real'
-            [I,cmap] = rgb2ind(repmat(real(Base)+0.5,[1,1,3]),ncolor);
+            cmap = repmat(linspace(0,1,ncolor)',[1,3]);
+            I = rgb2ind(repmat(real(Base)+0.5,[1,1,3]),cmap);
         otherwise
             error('[AnimateBase] Undefined Draw Method!');
     end
     % Output
     switch lower(omode)
         case 'disp'
-            f = figure(); axis image off;
+            figure(); axis image off;
             imshow(I,cmap); pause(delay);
             nframe = nframe * niter;
         case 'gif'
             if nbase == 1
                 gifname = [fname,'.gif'];
             else
-                gifname = [fname,'[',num2str(b),'].gif'];
+                gifname = [fname,'-',num2str(b),'.gif'];
             end
             imwrite(I,cmap,gifname,'gif','DelayTime',delay);
         otherwise
@@ -76,7 +77,7 @@ for b = 1 : nbase
         % Generate Frame
         switch dmode
             case 'comb'
-                I = rgb2ind(comp2img(Base*exp(-1j*dPhi*k)),cmap);
+                I = rgb2ind(mat2img(Base*exp(-1j*dPhi*k)),cmap);
             case 'real'
                 I = rgb2ind(repmat(real(Base*exp(-1j*dPhi*k))+0.5,[1,1,3]),...
                     cmap);

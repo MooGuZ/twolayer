@@ -119,7 +119,7 @@ cmap = cmapgen(numel(index));
 axHandle = zeros(1,numel(index));
 % distribution of 'a'
 if ~swPrint, f = figure(); else clf; end
-set(gca,'XScale','log');
+% set(gca,'XScale','log');
 set(gca,'YScale','log');
 hold on
 for i = 1 : numel(index)
@@ -137,7 +137,7 @@ if swPrint
 end
 % distribution of 'delta a'
 if ~swPrint, f = figure(); else clf; end
-set(gca,'XScale','log');
+% set(gca,'XScale','log');
 set(gca,'YScale','log');
 hold on
 for i = 1 : numel(index)
@@ -147,8 +147,8 @@ for i = 1 : numel(index)
 end
 legend(axHandle,arrayfun(lgdstr,iterNum,'UniformOutput',false)); 
 grid on; hold off;
-title('Distribution of \Delta a');
-xlabel('log(\Delta a)');
+title('Distribution of |\Delta a|');
+xlabel('log(|\Delta a|)');
 ylabel('Log-Frequency');
 if swPrint
     print(f,'-depsc2','-r300',[savePath,'daDist.eps']);

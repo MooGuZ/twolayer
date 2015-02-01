@@ -42,8 +42,12 @@ for j = 1 : nbase
     title(['Base[',num2str(j),'] - Motion Components (Phase<+Amp>)'])
     % Print Figure
     if swPrint
-        print(gcf,'-dpng',...
-            [tstr,'[',num2str(j),'].png']);
+        if (nbase ~= 1)
+            print(gcf,'-dpng',...
+                [tstr,'[',num2str(j),'].png']);
+        else
+            print(gcf,'-dpng',[tstr,'.png']);
+        end
     else
         f = figure();
     end

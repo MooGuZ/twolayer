@@ -24,7 +24,7 @@ switch (nargin)
         datestr(now),ana.nproc);
   case 2
     ana.nproc = 0;
-    ana.fileName = [inArgB.anaFilePath,'analysis-',datestr(now),'.mat'];
+    ana.fileName = [inArgB.anaFilePath,'analysis.mat'];
     
     ana.data.path = inArgB.path;
     ana.data.nameList = inArgB.nameList;

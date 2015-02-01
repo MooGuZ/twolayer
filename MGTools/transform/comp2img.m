@@ -41,7 +41,7 @@ end
 H = @(phi) (sin(phi/2)+1)/3;
 V = @(m) Bright*ones(size(m));
 
-% Generate Image in YCbCr Color Space
+% Generate Image in HSV Color Space
 [m,n] = size(M);
 if Res^2 < 4*m*n
     img = zeros(m,n,3);

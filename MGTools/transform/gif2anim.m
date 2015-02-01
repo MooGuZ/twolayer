@@ -1,4 +1,4 @@
-function frames = gif2anim(fname,idx)
+function [frames,res] = gif2anim(fname,idx)
 % GIF2ANIM read GIF file into animation in column frames
 
 if exist('idx','var')
@@ -8,6 +8,7 @@ else
 end
 
 isz = size(I);
+res = isz(1:2);
 assert(isz(3)==1,'[GIF2ANIM] GIF file cannot be recognized!');
 
 % Convert Color Map to YCbCr Space

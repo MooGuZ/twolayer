@@ -32,7 +32,7 @@ modelp.IDList = cellfun(niterCal,numStr);
 % sort by number of iterations
 [modelp.IDList,index] = sort(modelp.IDList,'ascend');
 % reorganize nameList
-modelp.nameList = {modelp.nameList{index}};
+modelp.nameList = modelp.nameList(index);
 
 datap.path = dataPath;
 if datap.path(end) ~= '/'
@@ -43,13 +43,13 @@ flist = dir([datap.path,'*.gif']);
 datap.nameList = {flist(:).name};
 
 if exist('anaPath','var')
-    datap.anaFilePath = anaPath;
+    if anaPath(end) == '/'
+        datap.anaFilePath = anaPath;
+    else
+        datap.anaFilePath = [anaPath,'/'];
+    end
 else
     datap.anaFilePath = './';
-end
-
-if datap.anaFilePath(end) ~= '/'
-    datap.anaFilePath = [datap.anaFilePath,'/'];
 end
 
 if exist('batchSize','var')
