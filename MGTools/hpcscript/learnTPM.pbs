@@ -1,0 +1,26 @@
+#PBS -N ComplexBasesModel-FVP
+#PBS -q gpufermi
+#PBS -l nodes=1:gpus=2,walltime=50:00:00,mem=13gb
+#PBS -j oe
+#PBS -m be
+
+export CUDA_VISIBLE_DEVICES=`gpu-free`
+
+echo "Your job is running on $PBS_NODEFILE"
+
+module load matlab
+module load cuda
+
+cd ~/MPSeparation/
+
+matlab -nodisplay
+% Set Path Environment
+root = [pwd,'/'];
+addpath([root,'data'],[root,'state'],[root,'init']);
+addpath([root,'code'], ...
+    [root,'code/MGTools'],[root,'code/MGTools/io'],[root,'code/MGTools/learn'], ...
+    [root,'code/MGTools/init'],[root,'code/MGTools/showrst'],[root,'code/MGTools/transform'], ...
+    [root,'code/MGTools/experiment'],[root,'code/MGTools/hpcscript']);
+% Run Scripts
+trainTPM
+exit

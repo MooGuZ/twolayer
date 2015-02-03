@@ -2,3 +2,4 @@ data/
 state/
 MGTools/_gsdata_/
 MGTools/history/
+.DS_Store

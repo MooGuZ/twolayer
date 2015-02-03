@@ -2,6 +2,9 @@ function Model = tpmodel(videoPath,npattern,ntrans,nEpoch,nAdapt,nInfer,Model)
 % TRANSPATTERNMODEL learn Transformation and Pattern base function sets  
 % for optimally interpret provided videos
 
+% Check availability of GPU
+swGPU = (gpuDeviceCount ~= 0);
+
 % Fundamental Settings
 % --------------------
 % Iteration Number
@@ -9,7 +12,7 @@ if ~exist('nEpoch','var'), nEpoch = 30; end
 if ~exist('nAdapt','var'), nAdapt = 70; end
 if ~exist('nInfer','var'), nInfer = 70; end
 % Learning Step Size
-stepInit = 1e-2;
+stepInit = 1e-3;
 accuracy = 1e-4;
 % Quantities of Model
 if ~exist('npattern','var'), npattern = 13; end
@@ -40,6 +43,11 @@ for i = 2 : numel(flist)
     v = [v,gif2anim(flist{i})];
 end
 
+% GPU Enabling
+if swGPU
+	v = gsingle(v);
+end
+
 % Quantities of Data
 [npixel,nframe] = size(v);
 
@@ -59,6 +67,15 @@ else
     beta   = randn(1,nframe,npattern,ntrans);
     bia    = rand(1,nframe,npattern,1);
 end
+
+% GPU Enabling
+if swGPU
+	phi = gsingle(phi);
+	alpha = gsingle(alpha);
+	theta = gsingle(theta);
+	beta = gsingle(beta);
+	bia = gsingle(bia);
+end	
 
 % Initialize Objective Value Records
 objRec = zeros(7,2*nEpoch+1);
@@ -129,6 +146,15 @@ end
 Model.recoveredAnim = genModel(alpha,phi,beta,theta,bia);
 % Save Index of first frame
 Model.ffindex = ffindex;
+
+% Tranform data from GPU format to CPU format
+if swGPU
+	Model.transBase = double(Model.transBase);
+	Model.patBase   = double(Model.patBase);
+	Model.transCoefficient = double(Model.transCoefficient);
+	Model.patCoefficient   = double(Model.patCoefficient);
+	Model.bia = double(Model.bia);
+end
 
 end
 
