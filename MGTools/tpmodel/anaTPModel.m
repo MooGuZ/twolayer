@@ -23,15 +23,15 @@ for i = 1 : ntrans
     imwrite(I,[output,'/TransformBase-',num2str(i),'.png'],'PNG');
 end
 
-% disp('Animate Complex Base Functions...');
-% B = complex(zeros(npixel,npattern*ntrans),zeros(npixel,npattern*ntrans));
-% for i = 1 : npattern
-%     for j = 1 : ntrans
-%         B(:,(j-1)*npattern+i) = ...
-%             M.patBase(:,i) .* exp(1j*M.transBase(:,j));
-%     end
-% end
-% animateBase(B,'comb','gif','Filename',[output,'/ComplexBase'],'ncolor',256);
+disp('Animate Complex Base Functions...');
+B = complex(zeros(npixel,npattern*ntrans),zeros(npixel,npattern*ntrans));
+for i = 1 : npattern
+    for j = 1 : ntrans
+        B(:,(j-1)*npattern+i) = ...
+            M.patBase(:,i) .* exp(1j*M.transBase(:,j));
+    end
+end
+animateBase(B,'comb','gif','Filename',[output,'/ComplexBase'],'ncolor',256);
 
 disp('Save Recovered Animation...');
 ffindex = [M.ffindex,size(M.recoveredAnim,2)+1];

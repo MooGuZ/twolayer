@@ -1,4 +1,4 @@
-function I = mat2img(M,anchor)
+function I = mat2img(M,method,th)
 % MAT2IMG transform matrix into colorful image. This transformation  
 % modulate (saturation,brightness) by the norm of numbers in the matrix
 % and hue modulated by phase of numbers in the matrix. In this way, complex
@@ -7,34 +7,41 @@ function I = mat2img(M,anchor)
 %
 % Usage:
 % 
-% I = MAT2IMG(M,ANCHOR), where M is the 2D matrix and ANCHOR means the
-% value of (S,V) pair that would be mapped from 1.0 (if M is complex, 
-% ANCHOR corresponds to the complex number with norm of 1).
+% I = MAT2IMG(M,[METHOD,TH]), where M is the 2D matrix and METHOD is
+% mapping method utilized in this transformation process. There are two
+% method available now : ATAN and SIGMOID. If SIGMOID is active, threshold
+% TH can be specified.
 %
 % MooGu Z. <hzhu@case.edu>
 % 2015.01.23 - Version 0.1
 
-assert(numel(size(M))==2,'Matrix has and only has two dimensions.');
+assert(numel(size(M))==2,'Matrix shoule has and only has two dimensions.');
 % Set default CPOINT
-if ~exist('anchor','var'), anchor = .9; end
-% Check input argument
-assert((anchor > 0) && (anchor < 1), ...
-    'The anchor should be in the range (0,1).');
+if ~exist('method','var'), method = 'atan'; end
+if ~exist('th','var'), th = .3; end
 % Generate Image with same size as M
 I = zeros([size(M),3]);
-% Calculate Hue value of each element
+% Setup (Saturation,Value) pairs
+switch lower(method)
+    case {'atan'}
+        % Calculate (Saturation,Value) pairs
+        interMap = atan(tan(.9*(pi/2))*abs(M))*(2/pi);
+        % Tweak the curve
+        area = (abs(M) <= 1);
+        interMap(area) = .9 * (abs(M(area))).^(2/3);
+        % Fill up (S,V) pairs
+        I(:,:,2:3) = repmat(interMap,[1,1,2]);
+    case {'sigmoid'}
+        I(:,:,2:3) = repmat(1./(1+exp(-(abs(M)-th)*10)),[1,1,2]);
+    otherwise
+        error('the method is undefined!');
+end
+% Setup Hue Value
 if isreal(M)
     I(M(:)<0) = .5;
 else
     I(:,:,1)  = (wrapToPi(angle(M)-pi)/pi+1) / 2;
 end
-% Calculate (Saturation,Value) pairs
-interMap = atan(tan(anchor*(pi/2))*abs(M))*(2/pi);
-% Tweak the curve
-area = (abs(M) <= 1);
-interMap(area) = anchor * (abs(M(area))).^(2/3);
-% Fill up (S,V) pairs
-I(:,:,2:3) = repmat(interMap,[1,1,2]);
 % Convert Image into RGB Space
 I = hsv2rgb(I);
 

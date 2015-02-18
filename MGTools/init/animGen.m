@@ -6,7 +6,7 @@ function anim = animGen(shape,trans,varargin)
 % Version 0.5 - Jan 29, 2015
 
 % define available shape and transformation set
-shapeSet = {'circle','edge','sine','triangle','square','polygon'};
+shapeSet = {'circle','edge','sine','triangle','square','rectangle','polygon'};
 transSet = {'move','rotate','scale','movescale','moverotate', ...
     'rotatescale','mix'};
 % special transformation sets
@@ -35,6 +35,10 @@ p.addParamValue('mvdirection',0, ...
     @(x) isscalar(x) && isnumeric(x) && isreal(x));
 p.addParamValue('edgenumber',5, ...
     @(x) isscalar(x) && isnumeric(x) && isreal(x) && x - floor(x) == 0);
+p.addParamValue('edgedist',[], ...
+    @(x) isvector(x) && isnumeric(x) && isreal(x));
+p.addParamValue('edgeorient',[], ...
+    @(x) isvector(x) && isnumeric(x) && isreal(x));
 % parsering input arguments
 p.parse(shape,trans,varargin{:});
 % interpret parsering results
@@ -46,6 +50,8 @@ objpos    = p.Results.objposition;
 tzwide    = p.Results.smoothness * (2 / objsz);
 mvdirct   = p.Results.mvdirection;
 nedge     = p.Results.edgenumber;
+edist     = p.Results.edgedist;
+eorient   = p.Results.edgeorient;
 % initialize transform flags
 moving   = any(strcmpi(trans,moveTransSet));
 rotating = any(strcmpi(trans,rotateTransSet));
@@ -98,6 +104,8 @@ for f = 1 : nfrm
             curfrm = polygon(Z,3,@(M) bfunc(M,tzwide));
         case {'square'}
             curfrm = polygon(Z,4,@(M) bfunc(M,tzwide));
+        case {'rectangle'}
+            curfrm = polygon(Z,4,@(M) bfunc(M,tzwide),eorient,edist);
         case {'polygon'}
             curfrm = polygon(Z,nedge,@(M) bfunc(M,tzwide));
         otherwise
@@ -134,11 +142,11 @@ end
 
 function I = polygon(Z,n,bfunc,orient,dist)
 % norm vector orientation for each edge
-if ~exist('orient','var')
+if ~exist('orient','var') || isempty(orient)
     orient = (0 : n-1) * (2*pi / n);
 end
 % distance from center to edges
-if ~exist('dist','var')
+if ~exist('dist','var') || isempty(dist)
     dist = cos(pi/n) * ones(1,n);
 end
 % initialize image

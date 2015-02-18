@@ -9,14 +9,14 @@ end
 
 isz = size(I);
 res = isz(1:2);
-assert(isz(3)==1,'[GIF2ANIM] GIF file cannot be recognized!');
+% assert(isz(3)==1,'[GIF2ANIM] GIF file cannot be recognized!');
 
 % Convert Color Map to YCbCr Space
 cmap = rgb2ycbcr(cmap);
 cmap = cmap(:,1);
 
 % Reshape Index Matrix
-I = reshape(I,isz(1)*isz(2),isz(4));
+I = reshape(I,prod(res),numel(I)/prod(res));
 % Construct Frames
 frames = cmap(double(I)+1);
 
