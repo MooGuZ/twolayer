@@ -4,3 +4,5 @@ MGTools/_gsdata_/
 MGTools/history/
 MGTools/draft/
 .DS_Store
+.mat
+.gif
