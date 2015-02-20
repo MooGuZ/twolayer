@@ -36,8 +36,8 @@ for f = 1 : nfrm
     % fill responds to buffer
     buffer(bisz+1:end,bisz+1:end) = kron(R(:,:,f),kern);
     % plot current respond frame
-%     I(up(f):down(f),left(f):right(f),:) = mat2img(buffer);
-    I(up(f):down(f),left(f):right(f),:) = mat2img(abs(buffer));
+    I(up(f):down(f),left(f):right(f),:) = mat2img(buffer);
+%     I(up(f):down(f),left(f):right(f),:) = mat2img(abs(buffer));
 end
 
 end
