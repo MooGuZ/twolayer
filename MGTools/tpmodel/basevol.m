@@ -35,8 +35,8 @@ anim = zeros(height*width,nfrm,3);
 anim(:,1,:) = reshape(frame,[height*width,1,3]);
 % generate following frames
 for i = 2 : nfrm
-    alpha = alpha + step * dAlpha;
-    phi   = phi + step * dPhi;
+    alpha = alpha - step * dAlpha;
+    phi   = phi - step * dPhi;
     anim(:,i,:) = reshape(baseplot(reshape(alpha,[npixel,npattern]), ...
         reshape(phi,[npixel,ntrans])),[height*width,1,3]);
 end

@@ -15,6 +15,6 @@ if ~exist('res','var'), res = 256; end
 % normalize orientation vector
 ovec = ovec / norm(ovec);
 % generate transform base on specific orientation
-T = ovec(1) * X + ovec(2) * Y;
+T = wrapToPi(ovec(1) * X + ovec(2) * Y);
 
 end

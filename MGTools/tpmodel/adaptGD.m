@@ -6,6 +6,9 @@ if niter < 1 || ~(swAlpha || swPhi)
     i = 0; return
 end
 
+% randomlize switcher of negative cutter
+swNegCut = rand(1) < 0.9;
+
 step = stepInit;
 for i = 1 : niter
     [dAlpha,dPhi] = dBase(alpha,phi,beta,theta,bia,delta, ...
@@ -13,8 +16,7 @@ for i = 1 : niter
     if swAlpha
         newAlpha = alpha - step * dAlpha;
         % keep alpha positive
-        negmap   = (newAlpha < 0);
-        newAlpha(negmap) = 0;
+        if swNegCut, newAlpha(newAlpha < 0) = 0; end
     else
         newAlpha = alpha; 
     end
@@ -33,8 +35,7 @@ for i = 1 : niter
         if swAlpha
             newAlpha = alpha - step * dAlpha;
             % keep alpha positive
-            negmap   = (newAlpha < 0);
-            newAlpha(negmap) = 0;
+            if swNegCut, newAlpha(newAlpha < 0) = 0; end
         else
             newAlpha = alpha;
         end

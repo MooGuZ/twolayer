@@ -138,11 +138,7 @@ else
     npattern = size(model.alpha,2);
     ntrans   = size(model.phi,2);
     % reshape model parameters for optimization
-    alpha = reshape(model.alpha,[npixel,npattern,1,1]);
-    phi   = reshape(model.phi,[npixel,1,ntrans,1]);
-    beta  = reshape(model.beta,[1,npattern,ntrans,nframe]);
-    theta = reshape(model.theta,[1,npattern,ntrans,nframe]);
-    bia   = reshape(model.bia,[1,npattern,1,nframe]);
+    [alpha,phi,beta,theta,bia] = m2p(model);
     % get probabilistic setting
     sigma = model.sigma;
 end
@@ -231,13 +227,10 @@ if swGPU
 end
     
 % Data of Model
-model.phi   = reshape(phi,[npixel,ntrans]);
-model.alpha = reshape(alpha,[npixel,npattern]);
-model.theta = reshape(theta,[npattern,ntrans,nframe]);
-model.beta  = reshape(beta,[npattern,ntrans,nframe]);
-model.bia   = reshape(bia,[npattern,nframe]);
+model = p2m(alpha,phi,beta,theta,bia,model);
 % Information of Model
 model.sigma = sigma;
+model.obj   = objective;
 if isfield(model,'objRec')
     model.objRec = [model.objRec,objRec];
 else
