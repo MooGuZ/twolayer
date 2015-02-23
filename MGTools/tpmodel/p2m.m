@@ -8,9 +8,9 @@ ntrans   = size(phi,3);
 nframe   = size(theta,4);
 % reshape parameters
 m.alpha  = reshape(alpha,[npixel,npattern]);
-m.phi    = reshape(phi,[npixel,ntrans]);
+m.phi    = reshape(wrapToPi(phi),[npixel,ntrans]);
 m.beta   = reshape(beta,[npattern,ntrans,nframe]);
-m.theta  = reshape(theta,[npattern,ntrans,nframe]);
+m.theta  = reshape(wrapToPi(theta),[npattern,ntrans,nframe]);
 m.bia    = reshape(bia,[npattern,nframe]);
 
 end

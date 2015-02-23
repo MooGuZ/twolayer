@@ -7,31 +7,33 @@ end
 
 step = stepInit;
 for i = 1 : niter
+    % calculate derivatives of coefficients
     [dBeta,dTheta,dBia] = ...
         dCoefficient(alpha,phi,beta,theta,bia,delta,sigma,ffindex);
-    newBeta  = beta - step * dBeta;
-    newTheta = wrapToPi(theta - step * dTheta);
-    newBia   = bia - step * dBia;
-    newDelta = v - genmodel(alpha,phi,newBeta,newTheta,newBia);
-    newObj   = ...
-        objFunc(alpha,phi,newBeta,newTheta,newBia,newDelta, ...
-            sigma,ffindex,resolution);
-    while(newObj.value > obj.value)
-        step = step / 2;
-        if step < stepMin, break; end
+    % find proper step size to gain improvement
+    while (true)
         newBeta  = beta - step * dBeta;
-        newTheta = wrapToPi(theta - step * dTheta);
+        newTheta = theta - step * dTheta;
         newBia   = bia - step * dBia;
         newDelta = v - genmodel(alpha,phi,newBeta,newTheta,newBia);
         newObj   = ...
             objFunc(alpha,phi,newBeta,newTheta,newBia,newDelta, ...
-                sigma,ffindex,resolution);
+            sigma,ffindex,resolution);
+        % if no improvement, shrink the step size
+        if newObj.value > obj.value
+            step = step / 2;
+            if step < stepMin, return
+            else continue
+            end
+        end
+        % make the step
+        beta  = newBeta;
+        theta = newTheta;
+        bia   = newBia;
+        delta = newDelta;
+        obj   = newObj;
+        % move to next iteration
+        break
     end
-    if step < stepMin, break; end
-    beta  = newBeta;
-    theta = newTheta;
-    bia   = newBia;
-    delta = newDelta;
-    obj   = newObj;
 end
 end

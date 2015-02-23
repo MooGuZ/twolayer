@@ -1,4 +1,4 @@
-function [dBeta,dTheta,dBia] = ...
+function [dBeta,dTheta,dBia,normFactor] = ...
     dCoefficient(alpha,phi,beta,theta,bia,delta,sigma,ffindex)
 % initialize derivatives
 if gpuDeviceCount == 0
@@ -25,8 +25,8 @@ for f = 1 : size(beta,4)
     dBia(:,:,:,f)   = -sum(errorMap,1) / sigma.noise^2;
     dBeta(:,:,:,f)  = -sum(bsxfun(@times,errorMap,cos(phase)),1) / sigma.noise^2 + ...
         (ratio * beta(:,:,:,f)) ./ (beta(:,:,:,f).^2 + sigma.sparse^2);
-    dTheta(:,:,:,f) = -(beta(:,:,:,f) .* sum(bsxfun(@times,errorMap,sin(phase)),1)) / sigma.noise^2 + ...
-        ratio * dSlow(:,:,:,f) / sigma.slow^2;
+    dTheta(:,:,:,f) = -(beta(:,:,:,f) .* sum(bsxfun(@times,errorMap, ...
+        sin(phase)),1)) / sigma.noise^2 + ratio * dSlow(:,:,:,f) / sigma.slow^2;
 end
 % Normalize Gradient
 normFactor = sqrt(sum(dBia(:).^2) + sum(dBeta(:).^2) + sum(dTheta(:).^2));

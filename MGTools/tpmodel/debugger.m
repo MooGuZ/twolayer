@@ -5,7 +5,7 @@
 % MooGu Z. <hzhu@case.edu>
 % Feb 19, 2015 - Version 0.1
 
-clear all
+clear
 close all
 
 rng shuffle
@@ -18,6 +18,8 @@ ntrans   = 1;
 frmsz = [32,32];
 % number of frams
 nframe = 24;
+% occupation ratio
+ocpratio = 0.3;
 % model noise
 mnoise = 0.1;
 % parameters of prior and likelihood
@@ -26,12 +28,17 @@ sigma.sparse  = 1;
 sigma.slow    = 2*pi;
 sigma.smpat   = 1;
 sigma.smtrans = 2*pi;
+sigma.anorm   = ocpratio * prod(frmsz);
 % save sigma setting to reference model
 ref.sigma = sigma;
 
 %% generate reference bases
 ref.alpha = reshape(pbaseGen([.5,.5],13,frmsz(1)),[prod(frmsz),1]);
 ref.phi   = reshape(tbaseGen([1,1],3,frmsz(1)),[prod(frmsz),1]);
+
+% % normalize alpha
+% ref.alpha = bsxfun(@rdivide,ref.alpha,sum(abs(ref.alpha),1)+eps) ...
+%     * sigma.anorm;
 
 %% plot reference bases
 imshow(baseplot(ref.alpha,ref.phi,frmsz));
@@ -76,24 +83,25 @@ theta = reshape(ref.theta,[1,npattern,ntrans,nframe]);
 bia   = reshape(ref.bia,[1,npattern,1,nframe]);
 
 % initialize video parameters
-video.res = frmsz;
-video.ffindex = 1;
+v.res = frmsz;
+v.ffindex = 1;
 % generate video by generative model
-video.v = reshape(genmodel(alpha,phi,beta,theta,bia),[npixel,nframe]);
+v.v = reshape(genmodel(alpha,phi,beta,theta,bia),[npixel,nframe]);
 % % add noise
-% video.v = video.v + randn(npixel,nframe) * sigma.noise;
+% v.v = v.v + randn(npixel,nframe) * sigma.noise;
 
 %% calculate objective value of reference model
-delta = reshape(video.v,[npixel,1,1,nframe]) - genmodel(alpha,phi,beta,theta,bia);
-ref.obj = objFunc(alpha,phi,beta,theta,bia,delta,sigma,video.ffindex,video.res);
+delta = reshape(v.v,[npixel,1,1,nframe]) - genmodel(alpha,phi,beta,theta,bia);
+ref.obj = objFunc(alpha,phi,beta,theta,bia,delta,sigma,v.ffindex,v.res);
 
 %% ========================================================================
 % train transform-pattern model to reconstruct reference model
 
 %% initialize model from random variable
-m = tpmodel(video,'nepoch',10,'nadapt',30,'ninfer',30,'npattern',npattern,'ntrans',ntrans, ...
+m = tpmodel(v,'nepoch',10,'nadapt',30,'ninfer',30,'npattern',npattern,'ntrans',ntrans, ...
     'noiseprior',sigma.noise,'sparseprior',sigma.sparse,'slowprior',sigma.slow, ...
-    'patternbasesmoothprior',sigma.smpat,'transformbasesmoothprior',sigma.smpat);
+    'patternbasesmoothprior',sigma.smpat,'transformbasesmoothprior',1, ...
+    'NegativeCutProbability',0.9);
 
 %% initialize model from reference with some noise
 m = ref;
@@ -104,4 +112,4 @@ m.theta = m.theta + randn(size(m.theta)) * mnoise;
 m.bia   = m.bia + randn(size(m.bia)) * mnoise;
 
 %% retrain model
-[m,v] = tpmodel(video,'model',m,'nepoch',100,'nadapt',70,'ninfer',70);
+[m,v] = tpmodel(v,'model',m,'nepoch',30,'nadapt',70,'ninfer',70);

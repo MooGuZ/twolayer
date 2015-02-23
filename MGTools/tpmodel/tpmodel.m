@@ -18,13 +18,16 @@ function [model,video] = tpmodel(video,varargin)
 % nInfer                  |number of coefficient infering steps  | 30
 % InitialStepRatio        |initial step in search space ratio    | 0.01
 % Accuracy                |optimization precision requirement    | 0.0001
+% OccupyRatio             |ratio of average pattern occupation   | 0.3
 % NoisePrior              |sigma of noise distribution           | 0.1
 % SparsePrior             |sigma of sparseness distribution      | 1
 % SlowPrior               |sigma of slowness distribution        | 2 PI
 % PatternBaseSmoothPrior  |sigma of smoothness of pattern base   | 1
 % TransformBaseSmoothPrior|sigma of smoothness of transform base | 2 PI
+% NegativeCutProbability  |probability of applying negative cut  | 0.7
 % OptimizePatternBase     |swicher of pattern base optimization  | TRUE
 % OptimizeTransformBase   |switcher of transformbase optimization| TRUE
+% AlphaNormalization      |switcher of normalizing alpha         | FALSE
 % -----------------------------------------------------------------------
 %
 % MooGu Z. <hzhu@case.edu>
@@ -41,34 +44,40 @@ p.addRequired('video', @(x) ...
 p.addParamValue('model',[], @(x) ...
     isstruct(x) && isfield(x,'phi') && isfield(x,'alpha') ...
     && isfield(x,'theta') && isfield(x,'beta') && isfield(x,'bia'));
-p.addParamValue('nPattern', 13, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
-p.addParamValue('nTrans', 2, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
-p.addParamValue('nEpoch', 13, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
-p.addParamValue('nAdapt', 30, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
-p.addParamValue('nInfer', 30, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
-p.addParamValue('InitialStepRatio', 1e-2, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x));
-p.addParamValue('Accuracy', 1e-4, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x));
-p.addParamValue('NoisePrior',1e-1, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x));
-p.addParamValue('SparsePrior', 1e0, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x));
-p.addParamValue('SlowPrior', 2e0 * pi, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x));
-p.addParamValue('PatternBaseSmoothPrior', 1e0, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x));
-p.addParamValue('TransformBaseSmoothPrior', 2e0 * pi, @(x) ...
-    isnumeric(x) && isreal(x) && isscalar(x));
-p.addParamValue('OptimizePatternBase', true, @(x) ...
-    islogical(x) && isscalar(x));
-p.addParamValue('OptimizeTransformBase', true, @(x) ...
-    islogical(x) && isscalar(x));
+p.addParamValue('nPattern', 13, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
+p.addParamValue('nTrans', 2, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
+p.addParamValue('nEpoch', 13, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
+p.addParamValue('nAdapt', 30, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
+p.addParamValue('nInfer', 30, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
+p.addParamValue('InitialStepRatio', 1e-2, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
+p.addParamValue('Accuracy', 1e-4, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
+p.addParamValue('OccupyRatio', 3e-1, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
+p.addParamValue('NoisePrior',1e-1, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
+p.addParamValue('SparsePrior', 1e0, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
+p.addParamValue('SlowPrior', 2e0 * pi, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
+p.addParamValue('PatternBaseSmoothPrior', 1e0, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
+p.addParamValue('TransformBaseSmoothPrior', 2e0 * pi, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
+p.addParamValue('NegativeCutProbability', 0.7, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
+p.addParamValue('OptimizePatternBase', true, ...
+    @(x) islogical(x) && isscalar(x));
+p.addParamValue('OptimizeTransformBase', true, ...
+    @(x) islogical(x) && isscalar(x));
+p.addParamValue('AlphaNormalization', false, ...
+    @(x) islogical(x) && isscalar(x));
 % parse input
 p.parse(video,varargin{:});
 % initialize parameter according to input argument parsing result
@@ -80,16 +89,21 @@ nAdapt   = p.Results.nAdapt;
 nInfer   = p.Results.nInfer;
 stepInit = p.Results.InitialStepRatio;
 accuracy = p.Results.Accuracy;
+ocpratio = p.Results.OccupyRatio;
 % 2. statistic priors
 sigma.noise   = p.Results.NoisePrior;
 sigma.sparse  = p.Results.SparsePrior;
 sigma.slow    = p.Results.SlowPrior;
 sigma.smpat   = p.Results.PatternBaseSmoothPrior;
 sigma.smtrans = p.Results.TransformBaseSmoothPrior;
-% 3. optimization switcher
+% 3. probability of applying negative-cut
+sigma.probNegCut = p.Results.NegativeCutProbability;
+% 4. optimization switcher
 swPatOpt   = p.Results.OptimizePatternBase;
 swTransOpt = p.Results.OptimizeTransformBase;
-% 4. previous model
+% 5. alpha normalization switcher
+sigma.swANorm = p.Results.AlphaNormalization;
+% 6. previous model
 model = p.Results.model;
 
 % Check availability of GPU
@@ -142,6 +156,17 @@ else
     % get probabilistic setting
     sigma = model.sigma;
 end
+% set up normalized value of alpha
+if sigma.swANorm && ~isfield(sigma,'anorm')
+    sigma.anorm = ocpratio * npixel;
+    % calculate scaling ration
+    sratio = (sum(abs(alpha),1) + eps) / sigma.anorm;
+    % normalize alpha with ocpratio
+    alpha  = bsxfun(@rdivide,alpha,sratio);
+    % compansating beta and bias
+    beta   = bsxfun(@times,beta,sratio);
+    bia    = bsxfun(@times,bia,sratio);
+end
 % reshape video for calculating convenience
 v = reshape(v,[npixel,1,1,nframe]);
 
@@ -185,7 +210,7 @@ for epoch = 1 : nEpoch
         objective.sparse,objective.slow,objective.smpat,objective.smtrans]';
     
     % Adapting Complex Base Function
-    [alpha,phi,delta,objective,niter] = ...
+    [alpha,phi,beta,theta,bia,delta,objective,niter] = ...
         adaptGD(nAdapt,alpha,phi,beta,theta,bia,delta,objective, ...
             v,sigma,ffindex,animRes,stepInitAdapt,accuracy, ...
             swPatOpt,swTransOpt);

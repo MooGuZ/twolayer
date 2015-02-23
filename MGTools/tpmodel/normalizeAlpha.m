@@ -7,6 +7,18 @@ recalc = false;
 % define tolerance
 tol = 1e-1;
 
+if ~sigma.swANorm
+    % Scale factors of alpha
+    a = max(abs(alpha));
+    %Normalization and Transformation by Scale Factor
+    if any((a-1) > tol)
+        alpha = bsxfun(@rdivide,alpha,a);
+        bia   = bsxfun(@times,bia,a);
+        beta  = bsxfun(@times,beta,a);
+        recalc = true;
+    end
+end
+
 % Positive map of alpha
 P = (alpha < 0);
 % Set X and I
@@ -20,21 +32,17 @@ if any(setX) || any(setI)
         phi(setX(:),:,:,:) = wrapToPi(phi(setX(:),:,:,:) + pi);
         theta(:,:,~setI(:),:) = wrapToPi(theta(:,:,~setI(:),:) + pi);
     end
-    % Send warning for disability of compansation normalization
-    if (sum(~setX) * sum(~setI) ~= 0) || ...
-            any(all([permute(any(abs(bia)>tol,4),[2,1,4,3]),setI(:)],2))
-        disp('[Warning] The effects of alpha normalization cannot be fully compansated!');
-    end
-    recalc = true;
-end
-
-% Scale factors of alpha
-a = max(abs(alpha));
-%Normalization and Transformation by Scale Factor
-if any((a-1) > tol)
-    alpha = bsxfun(@rdivide,alpha,a);
-    bia   = bsxfun(@times,bia,a);
-    beta  = bsxfun(@times,beta,a);
+%     % Send warning for disability of compansation normalization
+%     if (sum(~setX) * sum(~setI) ~= 0) || ...
+%             any(all([permute(any(abs(bia)>tol,4),[2,1,4,3]),setI(:)],2))
+%         disp('Negative Flipping Method Applied!');
+%     end
+%     % scale alpha to standard sum
+%     a = sum(alpha,1);
+%     alpha = bsxfun(@rdivide,alpha,a);
+%     bia   = bsxfun(@times,bia,a);
+%     beta  = bsxfun(@times,beta,a);
+    % set objective value recalculation flag
     recalc = true;
 end
 
