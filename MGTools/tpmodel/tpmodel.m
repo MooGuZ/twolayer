@@ -18,7 +18,6 @@ function [model,video] = tpmodel(video,varargin)
 % nInfer                  |number of coefficient infering steps  | 30
 % InitialStepRatio        |initial step in search space ratio    | 0.01
 % Accuracy                |optimization precision requirement    | 0.0001
-% OccupyRatio             |ratio of average pattern occupation   | 0.3
 % NoisePrior              |sigma of noise distribution           | 0.1
 % SparsePrior             |sigma of sparseness distribution      | 1
 % SlowPrior               |sigma of slowness distribution        | 2 PI
@@ -58,8 +57,6 @@ p.addParamValue('InitialStepRatio', 1e-2, ...
     @(x) isnumeric(x) && isreal(x) && isscalar(x));
 p.addParamValue('Accuracy', 1e-4, ...
     @(x) isnumeric(x) && isreal(x) && isscalar(x));
-p.addParamValue('OccupyRatio', 3e-1, ...
-    @(x) isnumeric(x) && isreal(x) && isscalar(x));
 p.addParamValue('NoisePrior',1e-1, ...
     @(x) isnumeric(x) && isreal(x) && isscalar(x));
 p.addParamValue('SparsePrior', 1e0, ...
@@ -88,8 +85,6 @@ nEpoch   = p.Results.nEpoch;
 nAdapt   = p.Results.nAdapt;
 nInfer   = p.Results.nInfer;
 stepInit = p.Results.InitialStepRatio;
-accuracy = p.Results.Accuracy;
-ocpratio = p.Results.OccupyRatio;
 % 2. statistic priors
 sigma.noise   = p.Results.NoisePrior;
 sigma.sparse  = p.Results.SparsePrior;
@@ -97,12 +92,14 @@ sigma.slow    = p.Results.SlowPrior;
 sigma.smpat   = p.Results.PatternBaseSmoothPrior;
 sigma.smtrans = p.Results.TransformBaseSmoothPrior;
 % 3. probability of applying negative-cut
-sigma.probNegCut = p.Results.NegativeCutProbability;
+ctrl.probNegCut = p.Results.NegativeCutProbability;
 % 4. optimization switcher
-swPatOpt   = p.Results.OptimizePatternBase;
-swTransOpt = p.Results.OptimizeTransformBase;
+ctrl.swPatOpt   = p.Results.OptimizePatternBase;
+ctrl.swTransOpt = p.Results.OptimizeTransformBase;
 % 5. alpha normalization switcher
-sigma.swANorm = p.Results.AlphaNormalization;
+ctrl.swANorm  = p.Results.AlphaNormalization;
+% 6. optimization accuracy
+ctrl.accuracy = p.Results.Accuracy;
 % 6. previous model
 model = p.Results.model;
 
@@ -147,6 +144,8 @@ if isempty(model)
     theta = wrapToPi(pi * randn(1,npattern,ntrans,nframe));
     beta  = randn(1,npattern,ntrans,nframe);
     bia   = rand(1,npattern,1,nframe);
+    % write probabilistic parameter to model
+    model.sigma = sigma;
 else
     % renew quantity information
     npattern = size(model.alpha,2);
@@ -154,13 +153,24 @@ else
     % reshape model parameters for optimization
     [alpha,phi,beta,theta,bia] = m2p(model);
     % get probabilistic setting
-    sigma = model.sigma;
+    if isfield(model,'sigma')
+        sigma = model.sigma;
+        disp('Model paramter SIGMA is set by input model structure!');
+    end
+    % get functional paramters
+    if isfield(model,'ctrl')
+        ctrl  = model.ctrl;
+        disp('Model functional CTRL is set by input model structure!');
+    end
 end
 % set up normalized value of alpha
-if sigma.swANorm && ~isfield(sigma,'anorm')
-    sigma.anorm = ocpratio * npixel;
-    % calculate scaling ration
-    sratio = (sum(abs(alpha),1) + eps) / sigma.anorm;
+if ctrl.swANorm && ~isfield(ctrl,'anorm')
+    % calculate sum-value of each pattern base
+    svalue = sum(abs(alpha),1);
+    % calculate normalize value of alpha
+    ctrl.anorm = mean(svalue,2);
+    % calculate scaling ratio of each pattern base
+    sratio = svalue / ctrl.anorm;
     % normalize alpha with ocpratio
     alpha  = bsxfun(@rdivide,alpha,sratio);
     % compansating beta and bias
@@ -181,16 +191,18 @@ if swGPU
 end	
 
 % Initialize Objective Value Records
-objRec = zeros(7,2*nEpoch+1);
+objRec.n = zeros(1,2*nEpoch+1);
+objRec.v = repmat(struct('noise',0,'sparse',0,'slow',0, ...
+    'smpat',0,'smtrans',0,'value',0),1,2*nEpoch+1);
 
 % Calculate initial step size for inference and adaption
-stepInitInfer = stepInit * sqrt(npattern*nframe*(1+8*pi^2*ntrans));
-stepInitAdapt = 0;
-if swPatOpt
-    stepInitAdapt = stepInitAdapt + stepInit * sqrt(npixel*npattern); 
+ctrl.inferInitStep = stepInit * sqrt(npattern*nframe*(1+8*pi^2*ntrans));
+ctrl.adaptInitStep = 0;
+if ctrl.swPatOpt
+    ctrl.adaptInitStep = ctrl.adaptInitStep + stepInit * sqrt(npixel*npattern); 
 end
-if swTransOpt
-    stepInitAdapt = stepInitAdapt + stepInit * sqrt(npixel*4*pi^2*ntrans);
+if ctrl.swTransOpt
+    ctrl.adaptInitStep = ctrl.adaptInitStep + stepInit * sqrt(npixel*4*pi^2*ntrans);
 end
 
 % E-M Algo
@@ -198,48 +210,47 @@ delta = v - genmodel(alpha,phi,beta,theta,bia);
 objective = objFunc(alpha,phi,beta,theta,bia,delta,sigma,ffindex,animRes);
 for epoch = 1 : nEpoch
     % Infering Optimal Theta
-    [beta,theta,bia,delta,objective,niter] = ...
+    [beta,theta,bia,delta,objective,niter,ctrl] = ...
         inferGD(nInfer,alpha,phi,beta,theta,bia,delta,objective, ...
-            v,sigma,ffindex,animRes,stepInitInfer,accuracy);
+        sigma,ctrl,v,ffindex,animRes);
     % Show information
     disp(['Objective Value after infering process of EPOCH[', ...
         num2str(epoch),'] >> ',num2str(objective.value), ...
         ' (',num2str(niter),' cycles)']);
     % Records Objective Values
-    objRec(:,2*epoch-1) = [niter,objective.value,objective.noise, ...
-        objective.sparse,objective.slow,objective.smpat,objective.smtrans]';
+    objRec.n(2*epoch-1) = niter;
+    objRec.v(2*epoch-1) = objective;
     
     % Adapting Complex Base Function
-    [alpha,phi,beta,theta,bia,delta,objective,niter] = ...
+    [alpha,phi,delta,objective,niter,ctrl] = ...
         adaptGD(nAdapt,alpha,phi,beta,theta,bia,delta,objective, ...
-            v,sigma,ffindex,animRes,stepInitAdapt,accuracy, ...
-            swPatOpt,swTransOpt);
+            sigma,ctrl,v,ffindex,animRes);
     % Show information
     disp(['Objective Value after adapting process of EPOCH[', ...
         num2str(epoch),'] >> ',num2str(objective.value), ...
         ' (',num2str(niter),' cycles)']);
     % Records Objective Values
-    objRec(:,2*epoch) = [niter,objective.value,objective.noise, ...
-        objective.sparse,objective.slow,objective.smpat,objective.smtrans]';
+    objRec.n(2*epoch) = niter;
+    objRec.v(2*epoch) = objective;
     
     % Normalize alpha
     [alpha,phi,beta,theta,bia,delta,objective] = ...
         normalizeAlpha(alpha,phi,beta,theta,bia,delta,objective, ...
-            animRes,v,sigma,ffindex);
+            sigma,ctrl,v,ffindex,animRes);
 end
 % For case nEpoch == 0
 if isempty(epoch), epoch = 0; end
 
 % Inference for the final bases
-[beta,theta,bia,~,objective,niter] = ...
+[beta,theta,bia,~,objective,niter,ctrl] = ...
     inferGD(nInfer,alpha,phi,beta,theta,bia,delta,objective, ...
-        v,sigma,ffindex,animRes,stepInitInfer,accuracy);
+        sigma,ctrl,v,ffindex,animRes);
 % Show information
 disp(['Objective Value after final infering process >> ', ...
     num2str(objective.value),' (',num2str(niter),' cycles)']);
 % Records Objective Values
-objRec(:,2*epoch+1) = [niter,objective.value,objective.noise, ...
-        objective.sparse,objective.slow,objective.smpat,objective.smtrans]';
+objRec.n(2*epoch+1) = niter;
+objRec.v(2*epoch+1) = objective;
 
 % Tranform data from GPU format to CPU format
 if swGPU
@@ -255,10 +266,14 @@ end
 model = p2m(alpha,phi,beta,theta,bia,model);
 % Information of Model
 model.sigma = sigma;
+model.ctrl  = ctrl;
 model.obj   = objective;
 if isfield(model,'objRec')
-    model.objRec = [model.objRec,objRec];
+    model.objRec = objRecComb(model.objRec,objRec);
 else
+    for i = 2 : numel(objRec.n)
+        objRec.n(i) = objRec.n(i) + objRec.n(i-1);
+    end
     model.objRec = objRec;
 end
 % Data of Animation
@@ -271,4 +286,3 @@ end
 video.rec = reshape(genmodel(alpha,phi,beta,theta,bia),[npixel,nframe]);
 
 end
-

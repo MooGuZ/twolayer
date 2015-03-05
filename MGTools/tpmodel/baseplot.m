@@ -15,8 +15,8 @@ bisz = 2;
 % interval size between sections
 sisz = 4;
 % calculate image size and initialize it
-M = zeros((npat + 1) * (bsz(1) + bisz) + 2*sisz - bisz, ...
-    (ntrans + 1) * (bsz(2) + bisz) + 2*sisz - bisz);
+M = zeros((npat + 1) * (bsz(1) + bisz) + 3*sisz - 2*bisz, ...
+    (ntrans + 1) * (bsz(2) + bisz) + 3*sisz - 2*bisz);
 % define coordinates function
 up    = @(i) (bsz(1) + bisz) * i + 2*sisz - bisz + 1;
 down  = @(i) (bsz(1) + bisz) * (i + 1) + 2*(sisz - bisz);

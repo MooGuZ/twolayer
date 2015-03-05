@@ -5,45 +5,50 @@
 % MooGu Z. <hzhu@case.edu>
 % Feb 19, 2015 - Version 0.1
 
-clear
-close all
-
-rng shuffle
+clear; close all; rng shuffle; clc
 
 %% fundamental settings
 % number of bases
-npattern = 1;
+npattern = 2;
 ntrans   = 1;
 % size of frame
 frmsz = [32,32];
 % number of frams
-nframe = 24;
-% occupation ratio
-ocpratio = 0.3;
+nframe = 240;
 % model noise
 mnoise = 0.1;
+% smoothness target value
+smtgt = 0.1;
 % parameters of prior and likelihood
 sigma.noise   = 0.1;
 sigma.sparse  = 1;
 sigma.slow    = 2*pi;
-sigma.smpat   = 1;
-sigma.smtrans = 2*pi;
-sigma.anorm   = ocpratio * prod(frmsz);
-% save sigma setting to reference model
-ref.sigma = sigma;
+
 
 %% generate reference bases
-ref.alpha = reshape(pbaseGen([.5,.5],13,frmsz(1)),[prod(frmsz),1]);
-ref.phi   = reshape(tbaseGen([1,1],3,frmsz(1)),[prod(frmsz),1]);
 
-% % normalize alpha
-% ref.alpha = bsxfun(@rdivide,ref.alpha,sum(abs(ref.alpha),1)+eps) ...
-%     * sigma.anorm;
+% initilialize bases
+ref.alpha = zeros(prod(frmsz),npattern);
+ref.phi   = zeros(prod(frmsz),ntrans);
 
-%% plot reference bases
-imshow(baseplot(ref.alpha,ref.phi,frmsz));
+ref.alpha(:,1) = reshape(pbaseGen([.5,.5],13,frmsz(1)),[prod(frmsz),1]);
+ref.alpha(:,2) = reshape(pbaseGen([-.3,-.4],7,frmsz(1)),[prod(frmsz),1]);
+ref.phi        = reshape(tbaseGen([1,1],3,frmsz(1)),[prod(frmsz),1]);
+
+% estimate smoothness parameter
+alpha = reshape(ref.alpha,[frmsz,npattern]);
+phi   = reshape(ref.phi,[frmsz,ntrans]);
+sigma.smpat = sqrt((sum(sum(sum(diff(alpha,1,1).^2))) ....
+    + sum(sum(sum(diff(alpha,1,2).^2)))) ...
+    / (2 * numel(alpha) * smtgt));
+sigma.smtrans = sqrt((sum(sum(sum(wrapToPi(diff(phi,1,1)).^2))) ....
+    + sum(sum(sum(wrapToPi(diff(phi,1,2)).^2)))) ...
+    / (2 * numel(phi) * smtgt));
 
 %% generate responds randomly
+
+% save sigma setting to reference model
+ref.sigma = sigma;
 
 % beta, follow cauchy distribution
 ref.beta = rand(npattern,ntrans,nframe);
@@ -67,7 +72,7 @@ ref.beta = ones(npattern,ntrans,nframe);
 
 % theta, start from one frame and spread to all frames
 % follow Gaussian distribution
-ref.theta = reshape(linspace(0,2*pi,nframe),[1,1,nframe]);
+ref.theta = repmat(reshape(linspace(0,2*pi,nframe),[1,1,nframe]),[npattern,ntrans,1]);
 
 % bia, randomly distributed in [-.5,.5]
 ref.bia = rand(npattern,nframe) - .5;
@@ -94,14 +99,16 @@ v.v = reshape(genmodel(alpha,phi,beta,theta,bia),[npixel,nframe]);
 delta = reshape(v.v,[npixel,1,1,nframe]) - genmodel(alpha,phi,beta,theta,bia);
 ref.obj = objFunc(alpha,phi,beta,theta,bia,delta,sigma,v.ffindex,v.res);
 
+clear alpha phi beta theta bia delta
+
 %% ========================================================================
 % train transform-pattern model to reconstruct reference model
 
 %% initialize model from random variable
-m = tpmodel(v,'nepoch',10,'nadapt',30,'ninfer',30,'npattern',npattern,'ntrans',ntrans, ...
+m = tpmodel(v,'nepoch',100,'nadapt',1,'ninfer',1,'npattern',npattern,'ntrans',ntrans, ...
     'noiseprior',sigma.noise,'sparseprior',sigma.sparse,'slowprior',sigma.slow, ...
     'patternbasesmoothprior',sigma.smpat,'transformbasesmoothprior',1, ...
-    'NegativeCutProbability',0.9);
+    'NegativeCutProbability',0.9,'AlphaNormalization',false);
 
 %% initialize model from reference with some noise
 m = ref;
@@ -111,5 +118,8 @@ m.beta  = m.beta + randn(size(m.beta)) * mnoise;
 m.theta = m.theta + randn(size(m.theta)) * mnoise;
 m.bia   = m.bia + randn(size(m.bia)) * mnoise;
 
+m.sigma = ref.sigma;
+
 %% retrain model
-[m,v] = tpmodel(v,'model',m,'nepoch',30,'nadapt',70,'ninfer',70);
+[m,v] = tpmodel(v,'model',m,'nepoch',100,'nadapt',1,'ninfer',1, ...
+    'NegativeCutProbability',.3,'AlphaNormalization',false);

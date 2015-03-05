@@ -11,20 +11,19 @@ step = 1;
 npattern = size(model.alpha,2);
 ntrans   = size(model.phi,2);
 % convert model to parameters
-alpha = reshape(model.alpha,[npixel,npattern,1,1]);
-phi   = reshape(model.phi,[npixel,1,ntrans,1]);
-beta  = reshape(model.beta,[1,npattern,ntrans,nframe]);
-theta = reshape(model.theta,[1,npattern,ntrans,nframe]);
-bia   = reshape(model.bia,[1,npattern,1,nframe]);
-v     = reshape(video.v,[npixel,1,1,nframe]);
+[alpha,phi,beta,theta,bia] = m2p(model);
+% reshape video for calculating
+v = reshape(video.v,[npixel,1,1,nframe]);
 % get sigma setting from model
 sigma = model.sigma;
+% get control parameters from model
+ctrl  = model.ctrl;
 
 % calculate error in current status
 delta = v - genmodel(alpha,phi,beta,theta,bia);
 % calculate derivatives of bases
 [dAlpha,dPhi] = dBase(alpha,phi,beta,theta,bia,delta, ...
-        sigma,video.res,true,true);
+        sigma,ctrl,video.res);
     
 % generate first frame
 frame = baseplot(reshape(alpha,[npixel,npattern]),reshape(phi,[npixel,ntrans]));

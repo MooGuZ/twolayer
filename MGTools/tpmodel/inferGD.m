@@ -1,11 +1,11 @@
-function [beta,theta,bia,delta,obj,i] = ...
+function [beta,theta,bia,delta,obj,i,ctrl] = ...
     inferGD(niter,alpha,phi,beta,theta,bia,delta,obj, ...
-        v,sigma,ffindex,resolution,stepInit,stepMin)
+        sigma,ctrl,v,ffindex,res)
 if niter < 1 
     i = 0; return
 end
 
-step = stepInit;
+step = ctrl.inferInitStep;
 for i = 1 : niter
     % calculate derivatives of coefficients
     [dBeta,dTheta,dBia] = ...
@@ -18,11 +18,11 @@ for i = 1 : niter
         newDelta = v - genmodel(alpha,phi,newBeta,newTheta,newBia);
         newObj   = ...
             objFunc(alpha,phi,newBeta,newTheta,newBia,newDelta, ...
-            sigma,ffindex,resolution);
+            sigma,ffindex,res);
         % if no improvement, shrink the step size
         if newObj.value > obj.value
             step = step / 2;
-            if step < stepMin, return
+            if step < ctrl.accuracy, return
             else continue
             end
         end
