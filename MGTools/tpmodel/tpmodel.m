@@ -113,23 +113,8 @@ if isstruct(video)
     animRes = video.res;
     ffindex = video.ffindex;
 else
-    % Generating File List
-    switch exist(video,'file')
-        case {2}
-            flist = {video};
-        case {7}
-            flist = dir([video,'/*.gif']);
-            flist = strcat([video,'/'],{flist(:).name});
-        otherwise
-            error('Input argument #1 is not refering any folder or GIF file!');
-    end
-    % Generate Collection of Animations and list of first/last frame index
-    ffindex = 1; % First Frame Index
-    [v,animRes] = gif2anim(flist{1});
-    for i = 2 : numel(flist)
-        ffindex = [ffindex,size(v,2)+1];
-        v = [v,gif2anim(flist{i})];
-    end
+    % read animation files
+    [v,ffindex,animRes] = dataPrepare(video);
 end
 
 % Quantities of Data
