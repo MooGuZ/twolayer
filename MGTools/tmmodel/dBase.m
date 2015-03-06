@@ -4,14 +4,13 @@ function [dAlpha,dPhi,normFactor] = ...
 % short path for easy case
 if ~(ctrl.swPatOpt || ctrl.swTransOpt), return; end
 
-% set datatype string according to availability of GPU
-if gpuDeviceCount == 0, dtype = 'double';
-else dtype = 'gsingle'; end
-
 % derivative of alpha
 if ctrl.swPatOpt
     % initialize derivatives of noise part
-    dNoise = zeros(size(alpha),dtype);
+    dNoise = zeros(size(alpha));
+    if gpuDevideCount ~= 0
+        dNoise = gsingle(dNoise);
+    end
     % calculate noise part of derivatives of frame by frame
     for f = 1 : size(beta,4)
         phase  = bsxfun(@minus,phi,theta(:,:,:,f));
@@ -49,7 +48,10 @@ end
 % derivative of phi
 if ctrl.swTransOpt
     % initialize derivatives of noise part
-    dNoise = zeros(size(phi),dtype);
+    dNoise = zeros(size(phi));
+    if gpuDeviceCount ~= 0
+        dNoise = gsingle(dNoise);
+    end
     % calculate noise part of derivatives of frame by frame
     for f = 1 : size(beta,4)
         phase  = bsxfun(@minus,phi,theta(:,:,:,f));

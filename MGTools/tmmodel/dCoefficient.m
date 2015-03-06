@@ -1,19 +1,26 @@
 function [dBeta,dTheta,dBia,normFactor] = ...
     dCoefficient(alpha,phi,beta,theta,bia,delta,sigma,ffindex)
 % initialize derivatives
-if gpuDeviceCount == 0
-    dBia   = zeros(size(bia));
-    dBeta  = zeros(size(beta));
-    dTheta = zeros(size(theta));
-else
-    dBia   = zeros(size(bia),'gsingle');
-    dBeta  = zeros(size(beta),'gsingle');
-    dTheta = zeros(size(theta),'gsingle');
+dBia   = zeros(size(bia));
+dBeta  = zeros(size(beta));
+dTheta = zeros(size(theta));
+if gpuDeviceCount ~= 0
+    dBia   = gsingle(dBia);
+    dBeta  = gsingle(dBeta);
+    dTheta = gsingle(dTheta);
 end
 % Intermediate result of slow prior for theta
-segDiff = wrapToPi(diff(theta,1,4));
-segDiff(:,:,:,ffindex(2:end)-1) = 0;
-dSlow = -diff(padarray(segDiff,[0,0,0,1]),1,4);
+if gpuDeviceCount == 0
+    segDiff = wrapToPi(diff(theta,1,4));
+    segDiff(:,:,:,ffindex(2:end)-1) = 0;
+    dSlow = -diff(padarray(segDiff,[0,0,0,1]),1,4);
+else
+    theta = reshape(theta,size(theta,2),size(theta,3),size(theta,4));
+    segDiff = wrapToPi(diff(theta,1,3));
+    segDiff(:,:,ffindex(2:end)-1) = 0;
+    dSlow = reshape(-diff(padarray(segDiff,[0,0,1]),1,3), ...
+        [1,size(theta)]);
+end
 % Scale ratio for derivative of beta and theta
 ratio = numel(delta) / numel(beta);
 % calculate derivative frame by frame
