@@ -8,9 +8,9 @@ if ~(ctrl.swPatOpt || ctrl.swTransOpt), return; end
 if ctrl.swPatOpt
     % initialize derivatives of noise part
     dNoise = zeros(size(alpha));
-    if gpuDeviceCount ~= 0
-        dNoise = gsingle(dNoise);
-    end
+%     if gpuDeviceCount ~= 0
+%         dNoise = gsingle(dNoise);
+%     end
     % calculate noise part of derivatives of frame by frame
     for f = 1 : size(beta,4)
         phase  = bsxfun(@minus,phi,theta(:,:,:,f));
@@ -49,9 +49,9 @@ end
 if ctrl.swTransOpt
     % initialize derivatives of noise part
     dNoise = zeros(size(phi));
-    if gpuDeviceCount ~= 0
-        dNoise = gsingle(dNoise);
-    end
+%     if gpuDeviceCount ~= 0
+%         dNoise = gsingle(dNoise);
+%     end
     % calculate noise part of derivatives of frame by frame
     for f = 1 : size(beta,4)
         phase  = bsxfun(@minus,phi,theta(:,:,:,f));

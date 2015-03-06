@@ -6,15 +6,15 @@ nframe   = size(theta,4);
 nrow     = res(1);
 ncol     = res(2);
 % Difference of each segment along time axis of theta
-if gpuDeviceCount == 0
+% if gpuDeviceCount == 0
     segDiff = wrapToPi(diff(theta,1,4));
     segDiff(:,:,:,ffindex(2:end)-1) = 0;
-else
-    theta = reshape(theta,npattern,ntrans,nframe);
-    segDiff = wrapToPi(diff(theta,1,3));
-    segDiff(:,:,ffindex(2:end)-1) = 0;
-    segDiff = reshape(segDiff,1,npattern,ntrans,nframe-1);
-end
+% else
+%     theta = reshape(theta,npattern,ntrans,nframe);
+%     segDiff = wrapToPi(diff(theta,1,3));
+%     segDiff(:,:,ffindex(2:end)-1) = 0;
+%     segDiff = reshape(segDiff,1,npattern,ntrans,nframe-1);
+% end
 % Reshape Bases for the convenience of calculation
 alpha = reshape(alpha,[nrow,ncol,npattern]);
 phi   = reshape(phi,[nrow,ncol,ntrans]);

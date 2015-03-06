@@ -109,7 +109,8 @@ ctrl.verbose  = p.Results.Verbose;
 model = p.Results.model;
 
 % Check availability of GPU
-swGPU = (gpuDeviceCount ~= 0);
+% swGPU = (gpuDeviceCount ~= 0);
+swGPU = false;
 
 % prepare video data
 if isstruct(video)
