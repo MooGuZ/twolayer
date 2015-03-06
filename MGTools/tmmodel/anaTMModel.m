@@ -1,4 +1,4 @@
-function anaTPModel(M,output)
+function anaTMModel(M,output)
 r = 32;
 c = 32;
 

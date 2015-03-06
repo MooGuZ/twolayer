@@ -1,5 +1,5 @@
 function v = genmodel(alpha,phi,beta,theta,bia)
-% GENMODEL generate video from parameters of transform-pattern model
+% GENMODEL generate video from parameters of transform-mask model
 %
 % This implementation is hybrid with FOR LOOP and BSXFUN to achive the
 % performance and follow memory limitation at the same time. According to

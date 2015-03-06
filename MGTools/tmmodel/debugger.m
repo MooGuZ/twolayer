@@ -1,4 +1,4 @@
-% This file aims at debuging the programs of transform-pattern model by
+% This file aims at debuging the programs of transform-mask model by
 % creating sample bases and responds according to the distribution. This
 % file is organized by cell units.
 %
@@ -9,12 +9,12 @@ clear; close all; rng shuffle; clc
 
 %% fundamental settings
 % number of bases
-npattern = 2;
+npattern = 1;
 ntrans   = 1;
 % size of frame
 frmsz = [32,32];
 % number of frams
-nframe = 240;
+nframe = 48;
 % model noise
 mnoise = 0.1;
 % smoothness target value
@@ -32,7 +32,7 @@ ref.alpha = zeros(prod(frmsz),npattern);
 ref.phi   = zeros(prod(frmsz),ntrans);
 
 ref.alpha(:,1) = reshape(pbaseGen([.5,.5],13,frmsz(1)),[prod(frmsz),1]);
-ref.alpha(:,2) = reshape(pbaseGen([-.3,-.4],7,frmsz(1)),[prod(frmsz),1]);
+% ref.alpha(:,2) = reshape(pbaseGen([-.3,-.4],7,frmsz(1)),[prod(frmsz),1]);
 ref.phi        = reshape(tbaseGen([1,1],3,frmsz(1)),[prod(frmsz),1]);
 
 % estimate smoothness parameter
@@ -66,16 +66,16 @@ ref.theta = wrapToPi(ref.theta);
 ref.bia = rand(npattern,nframe) - .5;
 
 %% generate responds with constant shifting
-
-% beta, follow cauchy distribution
-ref.beta = ones(npattern,ntrans,nframe);
-
-% theta, start from one frame and spread to all frames
-% follow Gaussian distribution
-ref.theta = repmat(reshape(linspace(0,2*pi,nframe),[1,1,nframe]),[npattern,ntrans,1]);
-
-% bia, randomly distributed in [-.5,.5]
-ref.bia = rand(npattern,nframe) - .5;
+% 
+% % beta, follow cauchy distribution
+% ref.beta = ones(npattern,ntrans,nframe);
+% 
+% % theta, start from one frame and spread to all frames
+% % follow Gaussian distribution
+% ref.theta = repmat(reshape(linspace(0,2*pi,nframe),[1,1,nframe]),[npattern,ntrans,1]);
+% 
+% % bia, randomly distributed in [-.5,.5]
+% ref.bia = rand(npattern,nframe) - .5;
 
 %% generate animation
 
@@ -105,21 +105,21 @@ clear alpha phi beta theta bia delta
 % train transform-pattern model to reconstruct reference model
 
 %% initialize model from random variable
-m = tpmodel(v,'nepoch',100,'nadapt',1,'ninfer',1,'npattern',npattern,'ntrans',ntrans, ...
+[m,v] = tmmodel(v,'nepoch',10,'nadapt',30,'ninfer',30,'npattern',npattern,'ntrans',ntrans, ...
     'noiseprior',sigma.noise,'sparseprior',sigma.sparse,'slowprior',sigma.slow, ...
-    'patternbasesmoothprior',sigma.smpat,'transformbasesmoothprior',1, ...
-    'NegativeCutProbability',0.9,'AlphaNormalization',false);
+    'patternbasesmoothprior',sigma.smpat,'transformbasesmoothprior',sigma.smtrans, ...
+    'NegativeCutProbability',0.5,'AlphaNormalization',false);
 
 %% initialize model from reference with some noise
-m = ref;
-m.alpha = m.alpha + randn(size(m.alpha)) * mnoise;
-m.phi   = m.phi + randn(size(m.phi)) * mnoise;
-m.beta  = m.beta + randn(size(m.beta)) * mnoise;
-m.theta = m.theta + randn(size(m.theta)) * mnoise;
-m.bia   = m.bia + randn(size(m.bia)) * mnoise;
-
-m.sigma = ref.sigma;
+% m = ref;
+% m.alpha = m.alpha + randn(size(m.alpha)) * mnoise;
+% m.phi   = m.phi + randn(size(m.phi)) * mnoise;
+% m.beta  = m.beta + randn(size(m.beta)) * mnoise;
+% m.theta = m.theta + randn(size(m.theta)) * mnoise;
+% m.bia   = m.bia + randn(size(m.bia)) * mnoise;
+% 
+% m.sigma = ref.sigma;
 
 %% retrain model
-[m,v] = tpmodel(v,'model',m,'nepoch',100,'nadapt',1,'ninfer',1, ...
-    'NegativeCutProbability',.3,'AlphaNormalization',false);
+[m,v] = tmmodel(v,'model',m,'nepoch',30,'nadapt',70,'ninfer',70, ...
+    'NegativeCutProbability',.9,'AlphaNormalization',false);

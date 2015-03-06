@@ -1,5 +1,5 @@
 % This file contains fragment scripts for debugging optimization part of
-% transform-pattern model
+% transform-mask model
 
 %% normalize alpha
 normFactor = sum(abs(m.alpha),1) / m.ctrl.anorm;
@@ -43,3 +43,5 @@ fprintf('Obj-Sparse  Improvement >> %5.2e\n',obj.sparse-testObj.sparse);
 fprintf('Obj-Slow    Improvement >> %5.2e\n',obj.slow-testObj.slow);
 fprintf('Obj-SMPat   Improvement >> %5.2e\n',obj.smpat-testObj.smpat);
 fprintf('Obj-SMTrans Improvement >> %5.2e\n',obj.smtrans-testObj.smtrans);
+
+% END OF SCRIPT
