@@ -1,5 +1,5 @@
 function [alpha,phi,beta,theta,bia,delta,obj] = normalizeAlpha( ...
-    alpha,phi,beta,theta,bia,delta,obj,sigma,ctrl,v,ffindex,res)
+    alpha,phi,beta,theta,bia,delta,obj,sigma,ctrl,v,ffindex,res,verbose)
 
 % initialization flag of recalculating objective value
 recalc = false;
@@ -54,8 +54,10 @@ end
 if recalc
     delta = v - genmodel(alpha,phi,beta,theta,bia);
     obj   = objFunc(alpha,phi,beta,theta,bia,delta,sigma,ffindex,res);
-    disp(['Objective Value after normalization of alpha >> ', ...
-        num2str(obj.value)]);
+    if verbose >= 2
+        disp(['Objective Value after normalization of alpha >> ', ...
+            num2str(obj.value)]);
+    end
 end
 
 end

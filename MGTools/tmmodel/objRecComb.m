@@ -2,7 +2,7 @@ function rec = objRecComb(recA,recB)
 % This helper function combine two objective records into one record
 
 % fundamental setting
-prate  = 0.8; % rate of priority for later records
+prate  = 1; % rate of priority for later records
 maxlen = 70; % maximal length of output records
 % check length of each records
 lenA = numel(recA.n);

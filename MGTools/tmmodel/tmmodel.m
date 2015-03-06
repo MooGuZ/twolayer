@@ -1,4 +1,4 @@
-function [model,video] = tpmodel(video,varargin)
+function [model,rec,video] = tmmodel(video,varargin)
 % TPMODEL learn Transformation and Pattern separated base function sets
 %
 % MODEL = TPMODEL(VIDEO,SETTINGS...) learn transformation and pattern
@@ -88,7 +88,6 @@ nEpoch   = p.Results.nEpoch;
 nAdapt   = p.Results.nAdapt;
 nInfer   = p.Results.nInfer;
 stepInit = p.Results.InitialStepRatio;
-verbose  = p.Results.Verbose;
 % 2. statistic priors
 sigma.noise   = p.Results.NoisePrior;
 sigma.sparse  = p.Results.SparsePrior;
@@ -104,7 +103,9 @@ ctrl.swTransOpt = p.Results.OptimizeTransformBase;
 ctrl.swANorm  = p.Results.AlphaNormalization;
 % 6. optimization accuracy
 ctrl.accuracy = p.Results.Accuracy;
-% 6. previous model
+% 7. verbose level of output information
+ctrl.verbose  = p.Results.Verbose;
+% 8. previous model
 model = p.Results.model;
 
 % Check availability of GPU
@@ -144,12 +145,12 @@ else
     % get probabilistic setting
     if isfield(model,'sigma')
         sigma = model.sigma;
-        disp('Model paramter SIGMA is set by input model structure!');
+        disp('Paramter SIGMA is set by input model structure!');
     end
     % get functional paramters
     if isfield(model,'ctrl')
         ctrl  = model.ctrl;
-        disp('Model functional CTRL is set by input model structure!');
+        disp('Parameter CTRL is set by input model structure!');
     end
 end
 % set up normalized value of alpha
@@ -202,34 +203,34 @@ for epoch = 1 : nEpoch
     [beta,theta,bia,delta,objective,niter,ctrl] = ...
         inferGD(nInfer,alpha,phi,beta,theta,bia,delta,objective, ...
         sigma,ctrl,v,ffindex,animRes);
+    % Records Objective Values
+    objRec.n(2*epoch-1) = niter;
+    objRec.v(2*epoch-1) = objective;
     % Show information
-    if verbose >= 2
+    if ctrl.verbose >= 2
         disp(['Objective Value after infering process of EPOCH[', ...
               num2str(epoch),'] >> ',num2str(objective.value), ...
               ' (',num2str(niter),' cycles)']);
     end
-    % Records Objective Values
-    objRec.n(2*epoch-1) = niter;
-    objRec.v(2*epoch-1) = objective;
     
     % Adapting Complex Base Function
     [alpha,phi,delta,objective,niter,ctrl] = ...
         adaptGD(nAdapt,alpha,phi,beta,theta,bia,delta,objective, ...
             sigma,ctrl,v,ffindex,animRes);
+    % Records Objective Values
+    objRec.n(2*epoch) = niter;
+    objRec.v(2*epoch) = objective;
     % Show information
-    if verbose >= 2
+    if ctrl.verbose >= 2
         disp(['Objective Value after adapting process of EPOCH[', ...
               num2str(epoch),'] >> ',num2str(objective.value), ...
               ' (',num2str(niter),' cycles)']);
     end
-    % Records Objective Values
-    objRec.n(2*epoch) = niter;
-    objRec.v(2*epoch) = objective;
     
     % Normalize alpha
     [alpha,phi,beta,theta,bia,delta,objective] = ...
         normalizeAlpha(alpha,phi,beta,theta,bia,delta,objective, ...
-            sigma,ctrl,v,ffindex,animRes);
+            sigma,ctrl,v,ffindex,animRes,ctrl.verbose);
 end
 % For case nEpoch == 0
 if isempty(epoch), epoch = 0; end
@@ -238,14 +239,14 @@ if isempty(epoch), epoch = 0; end
 [beta,theta,bia,~,objective,niter,ctrl] = ...
     inferGD(nInfer,alpha,phi,beta,theta,bia,delta,objective, ...
         sigma,ctrl,v,ffindex,animRes);
-% Show information
-if verbose >= 1
-    disp(['Objective Value after final infering process >> ', ...
-          num2str(objective.value),' (',num2str(niter),' cycles)']);
-end
 % Records Objective Values
 objRec.n(2*epoch+1) = niter;
 objRec.v(2*epoch+1) = objective;
+% Show information
+if ctrl.verbose >= 1
+    disp(['Objective Value after final infering process >> ', ...
+          num2str(objective.value),' (',num2str(sum(objRec.n)),' cycles)']);
+end
 
 % Tranform data from GPU format to CPU format
 if swGPU
@@ -278,6 +279,7 @@ if ~isstruct(video)
     video.ffindex = ffindex;
     video.res = animRes;
 end
-video.rec = reshape(genmodel(alpha,phi,beta,theta,bia),[npixel,nframe]);
+% reconstruct animation by generative model
+rec = reshape(genmodel(alpha,phi,beta,theta,bia),[npixel,nframe]);
 
 end
