@@ -27,6 +27,7 @@ function [model,video] = tpmodel(video,varargin)
 % OptimizePatternBase     |swicher of pattern base optimization  | TRUE
 % OptimizeTransformBase   |switcher of transformbase optimization| TRUE
 % AlphaNormalization      |switcher of normalizing alpha         | FALSE
+% Verbose                 |verbose level of shown information    | 2
 % -----------------------------------------------------------------------
 %
 % MooGu Z. <hzhu@case.edu>
@@ -75,6 +76,8 @@ p.addParamValue('OptimizeTransformBase', true, ...
     @(x) islogical(x) && isscalar(x));
 p.addParamValue('AlphaNormalization', false, ...
     @(x) islogical(x) && isscalar(x));
+p.addParamValue('Verbose', 2, ...
+    @(x) isnumeric(x) && isreal(x) && isscalar(x));
 % parse input
 p.parse(video,varargin{:});
 % initialize parameter according to input argument parsing result
@@ -85,6 +88,7 @@ nEpoch   = p.Results.nEpoch;
 nAdapt   = p.Results.nAdapt;
 nInfer   = p.Results.nInfer;
 stepInit = p.Results.InitialStepRatio;
+verbose  = p.Results.Verbose;
 % 2. statistic priors
 sigma.noise   = p.Results.NoisePrior;
 sigma.sparse  = p.Results.SparsePrior;
@@ -167,11 +171,11 @@ v = reshape(v,[npixel,1,1,nframe]);
 
 % GPU Enabling
 if swGPU
-	phi   = gsingle(phi);
-	alpha = gsingle(alpha);
-	theta = gsingle(theta);
-	beta  = gsingle(beta);
-	bia   = gsingle(bia);
+    phi   = gsingle(phi);
+    alpha = gsingle(alpha);
+    theta = gsingle(theta);
+    beta  = gsingle(beta);
+    bia   = gsingle(bia);
     v     = gsingle(v);
 end	
 
@@ -199,9 +203,11 @@ for epoch = 1 : nEpoch
         inferGD(nInfer,alpha,phi,beta,theta,bia,delta,objective, ...
         sigma,ctrl,v,ffindex,animRes);
     % Show information
-    disp(['Objective Value after infering process of EPOCH[', ...
-        num2str(epoch),'] >> ',num2str(objective.value), ...
-        ' (',num2str(niter),' cycles)']);
+    if verbose >= 2
+        disp(['Objective Value after infering process of EPOCH[', ...
+              num2str(epoch),'] >> ',num2str(objective.value), ...
+              ' (',num2str(niter),' cycles)']);
+    end
     % Records Objective Values
     objRec.n(2*epoch-1) = niter;
     objRec.v(2*epoch-1) = objective;
@@ -211,9 +217,11 @@ for epoch = 1 : nEpoch
         adaptGD(nAdapt,alpha,phi,beta,theta,bia,delta,objective, ...
             sigma,ctrl,v,ffindex,animRes);
     % Show information
-    disp(['Objective Value after adapting process of EPOCH[', ...
-        num2str(epoch),'] >> ',num2str(objective.value), ...
-        ' (',num2str(niter),' cycles)']);
+    if verbose >= 2
+        disp(['Objective Value after adapting process of EPOCH[', ...
+              num2str(epoch),'] >> ',num2str(objective.value), ...
+              ' (',num2str(niter),' cycles)']);
+    end
     % Records Objective Values
     objRec.n(2*epoch) = niter;
     objRec.v(2*epoch) = objective;
@@ -231,19 +239,21 @@ if isempty(epoch), epoch = 0; end
     inferGD(nInfer,alpha,phi,beta,theta,bia,delta,objective, ...
         sigma,ctrl,v,ffindex,animRes);
 % Show information
-disp(['Objective Value after final infering process >> ', ...
-    num2str(objective.value),' (',num2str(niter),' cycles)']);
+if verbose >= 1
+    disp(['Objective Value after final infering process >> ', ...
+          num2str(objective.value),' (',num2str(niter),' cycles)']);
+end
 % Records Objective Values
 objRec.n(2*epoch+1) = niter;
 objRec.v(2*epoch+1) = objective;
 
 % Tranform data from GPU format to CPU format
 if swGPU
-	phi   = double(phi);
-	alpha = double(alpha);
-	theta = double(theta);
-	beta  = double(beta);
-	bia   = double(bia);
+    phi   = double(phi);
+    alpha = double(alpha);
+    theta = double(theta);
+    beta  = double(beta);
+    bia   = double(bia);
     v     = double(v);
 end
     
