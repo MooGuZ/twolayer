@@ -15,8 +15,9 @@ nframe = size(beta,4);
 v = zeros(npixel,1,1,nframe);
 % reconstruct video frame by frame
 for f = 1 : nframe
-v(:,:,:,f) = sum(bsxfun(@times,alpha,bsxfun(@plus,bia(:,:,:,f), ...
-    sum(bsxfun(@times,beta(:,:,:,f),cos(bsxfun(@minus,phi,theta(:,:,:,f)))),3))),2);
+    v(:,1,1,f) = sum(bsxfun(@times,alpha,bsxfun(@plus,bia(:,:,:,f), ...
+        sum(bsxfun(@times,beta(:,:,:,f),cos(bsxfun(@minus,phi,theta(:,:,:,f)))),3))),2);
 end
 
 end
+

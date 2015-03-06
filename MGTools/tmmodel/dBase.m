@@ -8,7 +8,7 @@ if ~(ctrl.swPatOpt || ctrl.swTransOpt), return; end
 if ctrl.swPatOpt
     % initialize derivatives of noise part
     dNoise = zeros(size(alpha));
-    if gpuDevideCount ~= 0
+    if gpuDeviceCount ~= 0
         dNoise = gsingle(dNoise);
     end
     % calculate noise part of derivatives of frame by frame

@@ -19,7 +19,8 @@ else
     segDiff = wrapToPi(diff(theta,1,3));
     segDiff(:,:,ffindex(2:end)-1) = 0;
     dSlow = reshape(-diff(padarray(segDiff,[0,0,1]),1,3), ...
-        [1,size(theta)]);
+                    [1,size(theta)]);
+    theta = reshape(theta,[1,size(theta)]);
 end
 % Scale ratio for derivative of beta and theta
 ratio = numel(delta) / numel(beta);
