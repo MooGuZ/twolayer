@@ -2,21 +2,7 @@
 % set corresponding optimization parameters according to current objective
 % value
 
-% droot = '/Users/MooGu/Dropbox/NPLab/201402-MotionPatternSeparation/data';
-% mroot = [droot,'/Elementary/#models/20150306'];
-% mcode = 'HPCTest.mat';
-% % name of animation file or folder
-% fname = [droot,'/Elementary/Moving Cosine/D30-W10.gif'];
-% % model setting
-% npattern      = 9;
-% ntrans        = 1;
-% sigma.noise   = .1;
-% sigma.sparse  = 1;
-% sigma.slow    = 2*pi;
-% sigma.smpat   = 1;
-% sigma.smtrans = 2*pi;
-% % target objective value
-% tgtobj = .5;
+% FNAME TGTOBJ NPATTERN NTRANS SIGMA and MROOT MCODE are needed here
 
 if ~(exist('m','var') && exist('video','var'))
     % load animation data
@@ -27,7 +13,7 @@ if ~(exist('m','var') && exist('video','var'))
     end
     
     % initialize transform-mask model
-    [m,rec] = tmmodel(video,'nepoch',100,'nadapt',7,'ninfer',7, ...
+    [m,rec] = tmmodel(video,'nepoch',30,'nadapt',7,'ninfer',7, ...
         'npattern',npattern,'ntrans',ntrans,'noiseprior',sigma.noise, ...
         'sparseprior',sigma.sparse,'slowprior',sigma.slow, ...
         'patternbasesmoothprior',sigma.smpat, ...
