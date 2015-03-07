@@ -2,21 +2,21 @@
 % set corresponding optimization parameters according to current objective
 % value
 
-droot = '/Users/MooGu/Dropbox/NPLab/201402-MotionPatternSeparation/data';
-mroot = [droot,'/Elementary/#models/20150306'];
-mcode = 'HPCTest.mat';
-% name of animation file or folder
-fname = [droot,'/Elementary/Moving Cosine/D30-W10.gif'];
-% model setting
-npattern      = 9;
-ntrans        = 1;
-sigma.noise   = .1;
-sigma.sparse  = 1;
-sigma.slow    = 2*pi;
-sigma.smpat   = 1;
-sigma.smtrans = 2*pi;
-% target objective value
-tgtobj = .5;
+% droot = '/Users/MooGu/Dropbox/NPLab/201402-MotionPatternSeparation/data';
+% mroot = [droot,'/Elementary/#models/20150306'];
+% mcode = 'HPCTest.mat';
+% % name of animation file or folder
+% fname = [droot,'/Elementary/Moving Cosine/D30-W10.gif'];
+% % model setting
+% npattern      = 9;
+% ntrans        = 1;
+% sigma.noise   = .1;
+% sigma.sparse  = 1;
+% sigma.slow    = 2*pi;
+% sigma.smpat   = 1;
+% sigma.smtrans = 2*pi;
+% % target objective value
+% tgtobj = .5;
 
 if ~(exist('m','var') && exist('video','var'))
     % load animation data
