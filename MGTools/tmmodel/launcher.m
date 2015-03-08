@@ -30,22 +30,22 @@ while m.obj.value > tgtobj
     if m.obj.value > 100 * tgtobj
         setANorm(m,false);
         m.ctrl.probNegCut = .5;
-        [m,rec] = tmmodel(video,'model',m,'nepoch',30, ...
+        [m,rec] = tmmodel(video,'model',m,'nepoch',23, ...
             'nadapt',17,'ninfer',17);
     elseif m.obj.value > 10 * tgtobj
         setANorm(m,false);
         m.ctrl.probNegCut = .7;
-        [m,rec] = tmmodel(video,'model',m,'nepoch',30, ...
+        [m,rec] = tmmodel(video,'model',m,'nepoch',17, ...
             'nadapt',30,'ninfer',30);
     elseif m.obj.value > 2 * tgtobj
         setANorm(m,false);
         m.ctrl.probNegCut = .9;
-        [m,rec] = tmmodel(video,'model',m,'nepoch',30, ...
+        [m,rec] = tmmodel(video,'model',m,'nepoch',13, ...
             'nadapt',70,'ninfer',70);
     else
         setANorm(m,true);
         m.ctrl.probNegCut = .95;
-        [m,rec] = tmmodel(video,'model',m,'nepoch',30, ...
+        [m,rec] = tmmodel(video,'model',m,'nepoch',7, ...
             'nadapt',70,'ninfer',70);
     end
     % save model and video
