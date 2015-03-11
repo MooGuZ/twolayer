@@ -9,34 +9,37 @@ tol = 1e-1;
 
 if ctrl.swANorm
     if ~ctrl.swNegCut
-        % normalize alpha
+        % calculate scale factors of alpha
         normFactor = sum(abs(alpha),1) / ctrl.anorm;
+		% alpha-normalization and compansative transformation
         alpha  = bsxfun(@rdivide,alpha,normFactor);
         bia    = bsxfun(@times,bia,normFactor);
         beta   = bsxfun(@times,beta,normFactor);
+		% set up recalculation flag
         recalc = true;
     end
 else
-    % Scale factors of alpha
-    a = max(abs(alpha));
-    %Normalization and Transformation by Scale Factor
+    % calculate scale factors of alpha
+    normFactor = max(abs(alpha));
+    % alpha-normalization and compansative transformation
     if any((a-1) > tol)
-        alpha = bsxfun(@rdivide,alpha,a);
-        bia   = bsxfun(@times,bia,a);
-        beta  = bsxfun(@times,beta,a);
+        alpha = bsxfun(@rdivide,alpha,normFactor );
+        bia   = bsxfun(@times,bia,normFactor );
+        beta  = bsxfun(@times,beta,normFactor );
+		% set up recalculation flag
         recalc = true;
     end
 end
 
-% Positive map of alpha
+% positive map of alpha
 P = (alpha < 0);
-% Set X and I
+% set X and I
 setX = any(P,2);
 setI = any(P,1);
-% Normalization and Transformation by Positive Restraint
+% alpha-absolutization and compansative transformation
 if any(setX) || any(setI)
     alpha = abs(alpha);
-    % Approximate Compensation of Absolute Operator
+    % approximate compensation of absolute operator
     if sum(setX)*sum(setI) > sum(~setX)*sum(~setI)
         phi(setX(:),:,:,:) = phi(setX(:),:,:,:) + pi;
         theta(:,~setI(:),:,:) = theta(:,~setI(:),:,:) + pi;
@@ -46,7 +49,7 @@ if any(setX) || any(setI)
 %             any(all([permute(any(abs(bia)>tol,4),[2,1,4,3]),setI(:)],2))
 %         disp('Negative Flipping Method Applied!');
 %     end
-    % set objective value recalculation flag
+    % set up recalculation flag
     recalc = true;
 end
 
