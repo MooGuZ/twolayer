@@ -30,8 +30,6 @@ if ~exist('video','var')
     else
         [video.v,video.ffindex,video.res] = dataPrepare(fname);
     end
-    % save animation
-    save(fullfile(mroot,mcode),'video','-append');
 end
 
 % learning loop
