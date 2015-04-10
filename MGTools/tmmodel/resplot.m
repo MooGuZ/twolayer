@@ -11,7 +11,8 @@ fisz = 4;
 % check size of responds
 [npat,ntrans,nfrm] = size(beta);
 % check dimensional consistancy
-assert(all([npat,ntrans,nfrm] == size(theta)),'dimension of THETA does not match!');
+assert(all([npat,ntrans,nfrm] == size(theta)), ...
+    'dimension of THETA does not match!');
 assert(all([npat,nfrm] == size(bia)),'dimension of BIA does not match!');
 % define arrangement of frames
 ncol = ceil(sqrt(nfrm*npat/(ntrans+1)));
@@ -21,12 +22,17 @@ ncol = ceil(nfrm/nrow);
 I = ones(nrow * ((npat * (bsz + bisz) + bisz) + fisz) + fisz, ...
     ncol * (((ntrans + 1) * (bsz + bisz) + bisz) + fisz) + fisz, 3);
 % define coordinate function for each frame
-left  = @(f) rem(f-1,ncol) * (((ntrans + 1) * (bsz + bisz) + bisz) + fisz) + fisz + 1;
-right = @(f) (rem(f-1,ncol) + 1) * (((ntrans + 1) * (bsz + bisz) + bisz) + fisz);
-up    = @(f) (ceil(f/ncol) - 1) * ((npat * (bsz + bisz) + bisz) + fisz) + fisz + 1;
-down  = @(f) ceil(f/ncol) * ((npat * (bsz + bisz) + bisz) + fisz);
+left  = @(f) rem(f-1,ncol) * ...
+    (((ntrans + 1) * (bsz + bisz) + bisz) + fisz) + fisz + 1;
+right = @(f) (rem(f-1,ncol) + 1) * ...
+    (((ntrans + 1) * (bsz + bisz) + bisz) + fisz);
+up    = @(f) (ceil(f/ncol) - 1) * ...
+    ((npat * (bsz + bisz) + bisz) + fisz) + fisz + 1;
+down  = @(f) ceil(f/ncol) * ...
+    ((npat * (bsz + bisz) + bisz) + fisz);
 % initilize plot buffer for each frame
-buffer = zeros(npat * (bsz + bisz) + bisz,(ntrans + 1) * (bsz + bisz) + bisz);
+buffer = zeros(npat * (bsz + bisz) + bisz,(ntrans + 1) * ...
+    (bsz + bisz) + bisz);
 % generate kron kernel
 kern = [ones(bsz,1);zeros(bisz,1)];
 kern = kern * kern';

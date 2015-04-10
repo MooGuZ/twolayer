@@ -5,7 +5,7 @@ function I = baseplot(pbases,tbases,bsz)
 [npixel,npat] = size(pbases);
 [~,ntrans]    = size(tbases);
 % set default value
-if ~exist('frmsz','var'), bsz = round(sqrt(npixel)) * [1,1]; end
+if ~exist('bsz','var'), bsz = round(sqrt(npixel)) * [1,1]; end
 % check input arguments
 assert(size(tbases,1) == npixel, 'Bases are not match!');
 assert(prod(bsz) == npixel, 'Bases size need to be specified!');

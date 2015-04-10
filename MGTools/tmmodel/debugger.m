@@ -31,9 +31,9 @@ sigma.slow    = 2*pi;
 ref.alpha = zeros(prod(frmsz),npattern);
 ref.phi   = zeros(prod(frmsz),ntrans);
 
-ref.alpha(:,1) = reshape(pbaseGen([.5,.5],13,frmsz(1)),[prod(frmsz),1]);
+ref.alpha(:,1) = reshape(mbaseGen([.5,.5],13,frmsz(1)),[prod(frmsz),1]);
 % ref.alpha(:,2) = reshape(pbaseGen([-.3,-.4],7,frmsz(1)),[prod(frmsz),1]);
-ref.phi        = reshape(tbaseGen([1,1],3,frmsz(1)),[prod(frmsz),1]);
+ref.phi        = reshape(tbaseGen(45,3,frmsz(1)),[prod(frmsz),1]);
 
 % estimate smoothness parameter
 alpha = reshape(ref.alpha,[frmsz,npattern]);

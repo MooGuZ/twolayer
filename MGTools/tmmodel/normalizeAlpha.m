@@ -22,7 +22,7 @@ else
     % calculate scale factors of alpha
     normFactor = max(abs(alpha));
     % alpha-normalization and compansative transformation
-    if any((a-1) > tol)
+    if any((normFactor-1) > tol)
         alpha = bsxfun(@rdivide,alpha,normFactor );
         bia   = bsxfun(@times,bia,normFactor );
         beta  = bsxfun(@times,beta,normFactor );

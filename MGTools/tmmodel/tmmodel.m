@@ -42,8 +42,7 @@ p = inputParser;
 p.addRequired('video', @(x) ...
     isstruct(x) || exist(x,'file'));
 p.addParamValue('model',[], @(x) ...
-    isstruct(x) && isfield(x,'phi') && isfield(x,'alpha') ...
-    && isfield(x,'theta') && isfield(x,'beta') && isfield(x,'bia'));
+    isstruct(x) && isfield(x,'phi') && isfield(x,'alpha'));
 p.addParamValue('nPattern', 13, ...
     @(x) isnumeric(x) && isreal(x) && isscalar(x) && (floor(x) == x));
 p.addParamValue('nTrans', 2, ...
@@ -131,9 +130,6 @@ end
 if isempty(model)
     phi   = wrapToPi(pi * randn(npixel,1,ntrans,1));
     alpha = rand(npixel,npattern,1,1);
-    theta = wrapToPi(pi * randn(1,npattern,ntrans,nframe));
-    beta  = randn(1,npattern,ntrans,nframe);
-    bia   = rand(1,npattern,1,nframe);
     % write probabilistic parameter to model
     model.sigma = sigma;
 else
@@ -152,6 +148,16 @@ else
         ctrl  = model.ctrl;
         disp('Parameter CTRL is set by input model structure!');
     end
+    % preserve old objective records
+    if isfield(model,'objRec')
+        oldObjRec = model.objRec;
+    end
+end
+% randomly initialize responds if necessary
+if ~exist('beta','var') || isempty(beta)
+    theta = wrapToPi(pi * randn(1,npattern,ntrans,nframe));
+    beta  = randn(1,npattern,ntrans,nframe);
+    bia   = rand(1,npattern,1,nframe);
 end
 % set up normalized value of alpha
 if ctrl.swANorm && ~isfield(ctrl,'anorm')
@@ -259,13 +265,13 @@ if swGPU
 end
     
 % Data of Model
-model = p2m(alpha,phi,beta,theta,bia,model);
+model = p2m(alpha,phi,beta,theta,bia);
 % Information of Model
 model.sigma = sigma;
 model.ctrl  = ctrl;
 model.obj   = objective;
-if isfield(model,'objRec')
-    model.objRec = objRecComb(model.objRec,objRec);
+if exist('oldObjRec','var')
+    model.objRec = objRecComb(oldObjRec,objRec);
 else
     for i = 2 : numel(objRec.n)
         objRec.n(i) = objRec.n(i) + objRec.n(i-1);
