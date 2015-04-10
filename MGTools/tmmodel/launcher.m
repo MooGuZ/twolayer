@@ -5,7 +5,9 @@
 % FNAME TGTOBJ NPATTERN NTRANS SIGMA and MROOT MCODE are needed here
 
 % check existence of mroot folder and create one if necessary
-if exist(mroot,'dir') ~= 7, mkdir(mroot); end
+if exist(fileparts(fullfile(mroot,mcode)),'dir') ~= 7
+    mkdir(fileparts(fullfile(mroot,mcode))); 
+end
 
 if ~exist('m','var')
     % initialize transform-mask model
@@ -18,7 +20,7 @@ if ~exist('m','var')
         'Verbose',2);
     
     % save model and video
-    save([mroot,'/',mcode],'m','rec');
+    save(fullfile(mroot,mcode),'m','rec');
 end
 
 if ~exist('video','var')
@@ -29,7 +31,7 @@ if ~exist('video','var')
         [video.v,video.ffindex,video.res] = dataPrepare(fname);
     end
     % save animation
-    save([mroot,'/',mcode],'video','-append');
+    save(fullfile(mroot,mcode),'video','-append');
 end
 
 % learning loop
@@ -57,6 +59,6 @@ while m.obj.value > tgtobj
             'nadapt',70,'ninfer',30);
     end
     % save model and video
-    save([mroot,'/',mcode],'m','video','rec');
+    save(fullfile(mroot,mcode),'m','video','rec');
 end
 
