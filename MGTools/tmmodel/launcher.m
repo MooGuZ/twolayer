@@ -4,6 +4,9 @@
 
 % FNAME TGTOBJ NPATTERN NTRANS SIGMA and MROOT MCODE are needed here
 
+% check existence of mroot folder and create one if necessary
+if exist(mroot,'dir') ~= 7, mkdir(mroot); end
+
 if ~exist('m','var')
     % initialize transform-mask model
     [m,rec] = tmmodel(video,'nepoch',30,'nadapt',7,'ninfer',7, ...
