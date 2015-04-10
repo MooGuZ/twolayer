@@ -94,6 +94,13 @@ model.ctrl.verbose  = p.Results.Verbose;
 % 8. base functions
 model.alpha = p.Results.MBase;
 model.phi   = p.Results.TBase;
+% 9. initialize objective value as infinity
+model.obj.value   = inf;
+model.obj.noise   = inf;
+model.obj.sparse  = inf;
+model.obj.slow    = inf;
+model.obj.smpat   = inf;
+model.obj.smtrans = inf;
 
 % randomly initialize mask bases
 if isempty(model.alpha)
