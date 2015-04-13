@@ -9,6 +9,17 @@ if exist(fileparts(fullfile(mroot,mcode)),'dir') ~= 7
     mkdir(fileparts(fullfile(mroot,mcode))); 
 end
 
+% load video file if necessary
+if ~exist('video','var')
+    % load animation data
+    if exist([fileparts(fname),'/tmdata.mat'],'file')
+        load([fileparts(fname),'/tmdata.mat']);
+    else
+        [video.v,video.ffindex,video.res] = dataPrepare(fname);
+    end
+end
+
+% initialize model if necessary
 if ~exist('m','var')
     % initialize transform-mask model
     [m,rec] = tmmodel(video,'nepoch',30,'nadapt',7,'ninfer',7, ...
@@ -21,15 +32,6 @@ if ~exist('m','var')
     
     % save model and video
     save(fullfile(mroot,mcode),'m','rec');
-end
-
-if ~exist('video','var')
-    % load animation data
-    if exist([fileparts(fname),'/tmdata.mat'],'file')
-        load([fileparts(fname),'/tmdata.mat']);
-    else
-        [video.v,video.ffindex,video.res] = dataPrepare(fname);
-    end
 end
 
 % learning loop
