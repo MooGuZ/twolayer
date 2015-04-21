@@ -46,4 +46,13 @@ for f = 1 : nfrm
     I(up(f):down(f),left(f):right(f),:) = mat2img(buffer);
 end
 
+% if this function is running alone, just show the image and return the
+% figure handle.
+if nargout == 0
+    fig = figure();
+    imshow(I);
+    % return the figure handle instead of image matrix
+    I = fig;
+end
+
 end

@@ -24,7 +24,7 @@ p = inputParser;
 p.addRequired('ntype', @(x) any(validatestring(x,ntypelist)));
 p.addOptional('imsize', 256, @(x) isreal(x) && (numel(x) <= 2));
 p.addParamValue('corr', 1, @(x) isscalar(x) && isreal(x));
-p.addParamValue('cfreq', 0, @(x) isscalar(x) && isreal(x));
+p.addParamValue('cfreq', 7, @(x) isscalar(x) && isreal(x));
 p.addParamValue('dist', 'uniform', @(x) any(validatestring(x,vdistlist)));
 % parsing input
 p.parse(ntype,varargin{:});
@@ -51,7 +51,7 @@ I = real(ifft2(ifftshift(F)));
 I = (I - min(I(:))) / range(I(:));
 
 % binary process
-if any(validatestring(ntype,bproclist))
+if any(strcmpi(ntype,bproclist))
     I = I > median(I(:));
 else
     I = im2uint8(I);

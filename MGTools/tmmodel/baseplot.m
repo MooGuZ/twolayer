@@ -40,7 +40,16 @@ for i = 1 : npat
     end
 end
 
-% convert matrix to image
-I  = mat2img(M);
+% convert matrix to corresponding image
+I = mat2img(M);
+
+% if this function is running alone, just show the figure and return the
+% figure handle
+if nargout == 0
+    fig = figure();
+    imshow(I);
+    % return the figure handle instead of image matrix
+    I = fig;
+end
 
 end
