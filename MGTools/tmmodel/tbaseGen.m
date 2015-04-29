@@ -1,35 +1,108 @@
-function T = tbaseGen(orient,freq,res)
+function bases = tbaseGen(type, paramA,paramB,res)
 % TBASEGEN generate transform base function (set)
 %
-% USAGE T = tbaseGen(ORIENT,FREQ=3,RES=256) generate
-%       transformation base with ORIENT (angle of
-%       phase gradient), frequency FREQ in RESxRES
-%       image. Where, both ORIENT and FREQ can be
-%       to generate a set of functions. ORIENT is in
-%       unit degree.
+% BASES = tbaseGen('translate', ORIENT, FREQ, RES=256) generate
+%   transformation for translation with ORIENT in degree (from 0 to 360)
+%   and FREQ, which corresponding to the number of cycles in the range of
+%   current base. Both ORIENT and FREQ can be a list. If this is the case,
+%   all combination between them would produce a corresponding base in the
+%   result. RES define the resolution of base function as a discrete image,
+%   and default to 256x256.
+%
+% BASES = tbaseGen('scale', CENTER, FREQ, RES=256) generate transformation
+%   bases for scaling with center at CENTER (range from [-1,-1] to [1,1])
+%   and frequency FREQ, which represent the number of cycle in a distance
+%   unit (here is the half width of the base). Both CENTER and FREQ can be
+%   a list. Then all combination between them would produce one base in the
+%   result. RES define the resolution of base function as a discrete image,
+%   and default to 256x256.
+%
+% BASES = tbaseGen('rotate', CENTER, NCYCLE, RES=256) generate
+%   transformation bases for rotating, which is centered at CENTER (range
+%   from [-1,-1] to [1,1]) and number of cycles, NCYCLE, in a round. Both
+%   CENTER and NCYCLE can be a list. Then all combination between them 
+%   would produce one base in the result. RES define the resolution of base 
+%   function as a discrete image, and default to 256x256.
+%
+%   see also mbaseGen.
 %
 % MooGu Z. <hzhu@case.edu>
 % Apr 9, 2015
 
 % set default values
-if ~exist('freq','var'), freq = 3; end
-if ~exist('res','var'), res = 256; end
+if ~exist('res', 'var'), res = 256; end
+
+switch lower(type)
+    case {'translate', 'translation', 'translating', 'shift', 'shifting'}
+        bases = translateBases(paramA, paramB, res);
+        
+    case {'rotation', 'rotate', 'rotating'}
+        bases = rotateBases(paramA, paramB, res);
+        
+    case {'scale', 'scaling'}
+        bases = scaleBases(paramA, paramB, res);
+        
+    otherwise
+        error('Unrecognized transformation type : %s\n', type)
+end
+
+end
+
+function bases = translateBases(orient, freq, res)
+% this helper function generate transformation bases for translation.
 
 % number of base functions
 nbase = numel(orient) * numel(freq);
 % initialize base functions
-T = zeros(res,res,nbase);
+bases = zeros(res,res,nbase);
 % calculate coordinates
 [X,Y] = meshgrid(linspace(-pi,pi,res),linspace(pi,-pi,res));
 % generate bases one by one
-ibase = 1;
 for i = 1 : numel(orient)
     theta = pi * orient(i) / 180;
     for j = 1 : numel(freq)
-        f = freq(j);
-        T(:, :, ibase) = ...
-            wrapToPi(f * (cos(theta) * X + sin(theta) * Y));
-        ibase = ibase + 1;
+        bases(:, :, (i-1) * numel(freq) + j) = ...
+            wrapToPi(freq(j) * (cos(theta) * X + sin(theta) * Y));
+    end
+end
+
+end
+
+function bases = rotateBases(center, freq, res)
+% this helper function generate transformationa bases for rotation.
+
+% number of base functions needed to generate
+nbase = size(center,1) * numel(freq);
+% initialize base funcitons
+bases = zeros(res,res,nbase);
+% create coordinates
+[X,Y] = meshgrid(linspace(-1,1,res),linspace(1,-1,res));
+% generate bases
+for i = 1 : size(center, 1)
+    for j = 1 : numel(freq)
+        bases(:, :, (i-1) * numel(freq) + j) = wrapToPi( ...
+            angle((X - center(i,1)) + 1j*(Y - center(i,2))) * freq(j));
+    end
+end
+
+end
+
+function bases = scaleBases(center, ncycle, res)
+% this helper function generate tranaformation bases for scaling.
+
+% number of base functions needed to generate
+nbase = size(center,1) * numel(ncycle);
+% initialize base funcitons
+bases = zeros(res,res,nbase);
+% create coordinates
+[X,Y] = meshgrid(linspace(-pi,pi,res),linspace(pi,-pi,res));
+% generate bases
+for i = 1 : size(center, 1)
+    for j = 1 : numel(ncycle)
+        bases(:, :, (i-1) * numel(ncycle) + j) = ...
+            reshape(wrapToPi(sqrt(sum( ...
+                bsxfun(@minus,[X(:),Y(:)],center(i,:)) .^ 2, ...
+            2)) * ncycle(j)), res, res);
     end
 end
 
