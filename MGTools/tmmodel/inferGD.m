@@ -1,6 +1,12 @@
 function [beta,theta,bia,delta,obj,i,ctrl] = ...
     inferGD(niter,alpha,phi,beta,theta,bia,delta,obj, ...
         sigma,ctrl,v,ffindex,res)
+% INFERGD inference process of transformation-mask model by gradient
+% decent.
+%
+% MooGu Z. <hzhu@case.edu>
+% Feb 2015
+
 if niter < 1 
     i = 0; return
 end

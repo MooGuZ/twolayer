@@ -15,7 +15,7 @@ res = isz(1:2);
 cmap = rgb2ycbcr(cmap);
 cmap = cmap(:,1);
 
-% Reshape Index Matrix
+% Reshape Index Matrix if necessary
 I = reshape(I,prod(res),numel(I)/prod(res));
 % Construct Frames
 frames = cmap(double(I)+1);
