@@ -47,8 +47,10 @@ for i = 1 : niter
         % - improve objective value
         if newObj.value > obj.value
             step = step / 2;
-            if step < ctrl.accuracy, return
-            else continue
+            if step < ctrl.accuracy
+                return
+            else
+                continue
             end
         end
         % make the step

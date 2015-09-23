@@ -31,9 +31,9 @@ sigma.slow    = 2*pi;
 ref.alpha = zeros(prod(frmsz),npattern);
 ref.phi   = zeros(prod(frmsz),ntrans);
 
-ref.alpha(:,1) = reshape(mbaseGen([.5,.5],13,frmsz(1)),[prod(frmsz),1]);
-% ref.alpha(:,2) = reshape(pbaseGen([-.3,-.4],7,frmsz(1)),[prod(frmsz),1]);
-ref.phi        = reshape(tbaseGen(45,3,frmsz(1)),[prod(frmsz),1]);
+ref.alpha(:,1) = reshape(mbaseGen([.5,.5],13/32,frmsz),[prod(frmsz),1]);
+% ref.alpha(:,2) = reshape(mbaseGen([-.3,-.4],7,frmsz(1)),[prod(frmsz),1]);
+ref.phi        = reshape(tbaseGen('translate',45,3,frmsz(1)),[prod(frmsz),1]);
 
 % estimate smoothness parameter
 alpha = reshape(ref.alpha,[frmsz,npattern]);
@@ -108,7 +108,7 @@ clear alpha phi beta theta bia delta
 [m,rec] = tmmodel(v,'nepoch',10,'nadapt',30,'ninfer',30,'npattern',npattern,'ntrans',ntrans, ...
     'noiseprior',sigma.noise,'sparseprior',sigma.sparse,'slowprior',sigma.slow, ...
     'patternbasesmoothprior',sigma.smpat,'transformbasesmoothprior',sigma.smtrans, ...
-    'NegativeCutProbability',0.5,'AlphaNormalization',false);
+    'NegativeCutProbability',1,'AlphaNormalization',true);
 
 %% initialize model from reference with some noise
 % m = ref;

@@ -2,7 +2,12 @@ function [dAlpha,dPhi,normFactor] = ...
     dBase(alpha,phi,beta,theta,bia,delta,sigma,ctrl,res)
 
 % short path for easy case
-if ~(ctrl.swPatOpt || ctrl.swTransOpt), return; end
+if ~(ctrl.swPatOpt || ctrl.swTransOpt)
+	dAlpha = 0;
+	dPhi = 0;
+	normFactor = 1;
+	return;
+end
 
 % derivative of alpha
 if ctrl.swPatOpt

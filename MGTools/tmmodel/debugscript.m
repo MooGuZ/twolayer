@@ -7,11 +7,16 @@ m.alpha = bsxfun(@rdivide,m.alpha,normFactor);
 m.bia   = bsxfun(@times,m.bia,normFactor);
 m.beta  = bsxfun(@times,m.beta,normFactor);
 
+%% refresh gradient of bases
+clear dAlpha dPhi
+% re-calculate gradient
+[dAlpha, dPhi] = dBase(alpha, phi, beta, theta, bia, delta, sigma, ctrl, resolution);
+
 %% check effectiveness of dAlpha
-ss = 7e-2;
+ss = 1e-5;
 testAlpha = alpha - ss * dAlpha;
 if ctrl.swNegCut
-    testAlpha(testAlpha < 0) = 0;
+%     testAlpha(testAlpha < 0) = 0;
     if ctrl.swANorm
         testAlpha = ...
             bsxfun(@rdivide,testAlpha,sum(abs(testAlpha),1)/ctrl.anorm);
@@ -30,8 +35,8 @@ fprintf('Obj-SMPat   Improvement >> %9.2e\n',obj.smpat-testObj.smpat);
 fprintf('Obj-SMTrans Improvement >> %9.2e\n',obj.smtrans-testObj.smtrans);
 
 %% check effectiveness of dPhi
-ss = 1e-5;
-testPhi = alpha - ss * dPhi;
+ss = 1e-4;
+testPhi = phi - ss * dPhi;
 testDelta = v - genmodel(alpha,testPhi,beta,theta,bia);
 testObj   = ...
     objFunc(alpha,testPhi,beta,theta,bia,testDelta, ...

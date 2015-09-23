@@ -58,8 +58,13 @@ if recalc
     delta = v - genmodel(alpha,phi,beta,theta,bia);
     obj   = objFunc(alpha,phi,beta,theta,bia,delta,sigma,ffindex,res);
     if verbose >= 2
-        disp(['Objective Value after normalization of alpha >> ', ...
-            num2str(obj.value)]);
+        if ctrl.swNegCut
+            fprintf('Objective Value after alpha normalization [CUT] >> %f\n', ...
+                obj.value);
+        else
+            fprintf('Objective Value after alpha normalization [FLIP] >> %f\n', ...
+                obj.value);
+        end
     end
 end
 

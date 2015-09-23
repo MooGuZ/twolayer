@@ -31,6 +31,7 @@ function bases = tbaseGen(type, paramA,paramB,res)
 
 % set default values
 if ~exist('res', 'var'), res = 256; end
+if numel(res) == 1, res = [res, res]; end
 
 switch lower(type)
     case {'translate', 'translation', 'translating', 'shift', 'shifting'}
@@ -54,9 +55,9 @@ function bases = translateBases(orient, freq, res)
 % number of base functions
 nbase = numel(orient) * numel(freq);
 % initialize base functions
-bases = zeros(res,res,nbase);
+bases = zeros([res,nbase]);
 % calculate coordinates
-[X,Y] = meshgrid(linspace(-pi,pi,res),linspace(pi,-pi,res));
+[X,Y] = meshgrid(linspace(-pi,pi,res(2)),linspace(pi,-pi,res(1)));
 % generate bases one by one
 for i = 1 : numel(orient)
     theta = pi * orient(i) / 180;
@@ -74,9 +75,9 @@ function bases = rotateBases(center, freq, res)
 % number of base functions needed to generate
 nbase = size(center,1) * numel(freq);
 % initialize base funcitons
-bases = zeros(res,res,nbase);
+bases = zeros([res,nbase]);
 % create coordinates
-[X,Y] = meshgrid(linspace(-1,1,res),linspace(1,-1,res));
+[X,Y] = meshgrid(linspace(-1,1,res(2)),linspace(1,-1,res(1)));
 % generate bases
 for i = 1 : size(center, 1)
     for j = 1 : numel(freq)
@@ -93,9 +94,9 @@ function bases = scaleBases(center, ncycle, res)
 % number of base functions needed to generate
 nbase = size(center,1) * numel(ncycle);
 % initialize base funcitons
-bases = zeros(res,res,nbase);
+bases = zeros([res,nbase]);
 % create coordinates
-[X,Y] = meshgrid(linspace(-pi,pi,res),linspace(pi,-pi,res));
+[X,Y] = meshgrid(linspace(-pi,pi,res(2)),linspace(pi,-pi,res(1)));
 % generate bases
 for i = 1 : size(center, 1)
     for j = 1 : numel(ncycle)

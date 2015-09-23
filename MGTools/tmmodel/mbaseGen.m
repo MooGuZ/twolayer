@@ -23,18 +23,19 @@ assert(size(center,2) == 2, ...
 
 % set default values
 if ~exist('res','var'), res = 256; end
+if numel(res) == 1, res = [res, res]; end
 
 % calculate number of base function
 nbase = size(center,1) * numel(radius);
 
 % initialize bases
-bases = zeros(res,res,nbase);
+bases = zeros([res,nbase]);
 % calculate coordinates
-[X,Y] = meshgrid(linspace(-1,1,res),linspace(1,-1,res));
+[X,Y] = meshgrid(linspace(-1,1,res(2)),linspace(1,-1,res(1)));
 % generate base function one by one
 for i = 1 : numel(radius)
     % calculate sigma for Gaussian function
-    sigma = radius(i) / res;
+    sigma = radius(i);
     for j = 1 : size(center,1)
         % generate mask base
         buffer = exp(-((X - center(j,1)).^2 + (Y - center(j,2)).^2) ...

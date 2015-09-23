@@ -8,6 +8,12 @@ function [X, Y, dist] = hexgrid(npoints)
 % MooGu Z. <hzhu@case.edu>
 % Apr 9, 2015
 
+% short path : <npoint> = 1
+if npoints == 1
+    X = 0; Y = 0; dist = 1;
+    return
+end
+
 % estimate number of rows and columns
 rt = sqrt(2*npoints-1);
 % residual of estimation
