@@ -5,7 +5,9 @@ function [m,p] = modelInitParameters(frmSize,dataType,dataPath)
 %   [m,p] = modelInitParamters(frmSize)
 %
 % MooGu Z. <hzhu@case.edu>
-% June 17, 2014 - Version 0.1
+% Jun 17, 2014 - Version 0.1
+% Sep 24, 2015 - Version 0.2
+%   Added support to new dataset : NPLab 3D Motion
 
 m.patch_sz = frmSize;
 % Estimate Number of Bases
@@ -31,7 +33,8 @@ p.phasetrans.inference_method='minFunc_ind';
 % data
 p.data.type = dataType;
 p.data.path = [dataPath,'/'];
-if strcmp(p.data.type,'fvp')
+switch p.data.type
+case 'fvp'
     p.data.extname = '.gif';
     % Create Name List for Data Files
     flist = dir([p.data.path,'*',p.data.extname]);
@@ -40,6 +43,11 @@ if strcmp(p.data.type,'fvp')
     % The scale of data that processed at the same time
     p.data.scope = min(p.data.quantity,5000);
     p.data.nframe = 24;
+    
+case 'nplab-3dmotion'
+    p.data.nframe = 30;
+    p.data.quantity = nplab3dCount(p.data.path);
+    p.data.scope = min(p.data.quantity,5000);
 end
 
 % Save Path
