@@ -8,6 +8,8 @@ function N = nplab3dCount(p)
 % CHANGE LOG
 % ----------
 % Sep 24, 2015 - Version 0.1 : initial commit with full functionality
+% Sep 24, 2015 - Version 0.11
+%   Separated function 'subFolderList' to an independent file
 
 N = 0;
 
@@ -22,18 +24,9 @@ for iConfig = 1 : numel(cfgFolderList)
     for iScene = 1 : numel(sceneFolderList)
         scenePath = fullfile(cfgPath, sceneFolderList{iScene});
         % count each SEQUENCE folder
-        N = N + numel(subFilderList(scenePath));
+        N = N + numel(subFolderList(scenePath));
     end
 end
 
 end
 
-% sub-routine to list sub-folder under specified path
-function flist = subFolderList(p)
-    % obtain file/folder mixed list
-    flist = dir(p);
-    % filtering to keep folders
-    flist = {flist([flist(:).isdir]).name};
-    % remove fake folder ('.' and '..')
-    flist = flist(~ismember(flist, {'.', '..'}));
-end
