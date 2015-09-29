@@ -47,8 +47,7 @@ function collect(infd, outfd, fname, cfunc)
 % and recursively collect images in folders under current folder.
 
 showInfoVerbosely = false;
-overwriteGif = false;
-    
+overwriteGif = true;
 
 % image file extension name set
 imExtSet = {'.jpg','.png','.bmp','.jpeg','.tiff'};
@@ -84,8 +83,15 @@ imfSet = {flist(imfInd).name};
 gifSet = {flist(gifInd).name};
 
 if ~isempty(gifSet) && ~overwriteGif
+    if ~isempty(fname)
+        fname = [fname, '-'];
+    end
     % copy gif files to output folder in force (ignore exist file in output folder)
-    cellfun(@(fname) copyfile(fname, outfd, 'f'), gifSet);
+    cellfun( ...
+        @(str) copyfile( ...
+            fullfile(infd, str), ...
+            fullfile(outfd, [fname, str])), ...
+        gifSet);
     
 elseif ~isempty(imfSet)
     % show information
@@ -141,12 +147,18 @@ end
 if exist('cfunc','var')
     for i = 1 : numel(dirSet)
         collect(fullfile(infd,dirSet{i}),outfd, ...
-            [fname,dirSet{i}],cfunc);
+                [fname,dirSet{i}],cfunc);
+        if isempty(fname) && ~showInfoVerbosely
+            fprintf('%d/%d top-level sub-folder finished.\n', i, numel(dirSet));
+        end
     end
 else
     for i = 1 : numel(dirSet)
         collect(fullfile(infd,dirSet{i}),outfd, ...
-            [fname,dirSet{i}]);
+                [fname,dirSet{i}]);
+        if isempty(fname) && ~showInfoVerbosely
+            fprintf('%d/%d top-level sub-folder finished.\n', i, numel(dirSet));
+        end
     end
 end
 
