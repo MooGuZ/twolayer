@@ -19,9 +19,10 @@ function imfile2gif(infd, outfd, frmsz, frmrt, orgfrmrt)
 
 % CHANGE LOG
 % ----------
-% Sept 24, 2015 - Updated CFUNC interface to only take one parameter
-% Sept 25, 2015 - Updated to assuming input video last for 1 second
+% Sept 24, 2015 - updated CFUNC interface to only take one parameter
+% Sept 25, 2015 - updated to assuming input video last for 1 second
 %                 without specification.
+% Sept 28, 2015 - added a switcher to suppress output information
 
 if exist('frmsz','var')
     if exist('frmrt','var')
@@ -45,6 +46,10 @@ function collect(infd, outfd, fname, cfunc)
 % this is a helper function to collect image files under current folder
 % and recursively collect images in folders under current folder.
 
+showInfoVerbosely = false;
+overwriteGif = false;
+    
+
 % image file extension name set
 imExtSet = {'.jpg','.png','.bmp','.jpeg','.tiff'};
 
@@ -56,29 +61,38 @@ flist = dir(infd);
 % initialize index for directory and image file
 dirInd = false(1,numel(flist));
 imfInd = false(1,numel(flist));
+gifInd = false(1,numel(flist));
 % filter the FLIST one by one
 for i = 1 : numel(flist)
     % ignore hidden file and folders, including '.' and '..'
     if flist(i).name(1) == '.', continue; end
-    % tag directory in directory index
+    % category each elements (folder/file) in current directory
     if flist(i).isdir
-        dirInd(i) = true; 
-        continue
-    end
-    % tag image files 
-    [~,~,ext] = fileparts(flist(i).name);
-    if any(strcmpi(ext,imExtSet))
-        imfInd(i) = true;
+        dirInd(i) = true; % sub-folder
+    else
+       [~,~,ext] = fileparts(flist(i).name);
+       if any(strcmpi(ext,imExtSet))
+           imfInd(i) = true; % image file
+       elseif strcmpi(ext, '.gif')
+           gifInd(i) = true; % gif file
+       end 
     end
 end
-% get directory name set and image file name set
+% get name set of each type
 dirSet = {flist(dirInd).name};
 imfSet = {flist(imfInd).name};
+gifSet = {flist(gifInd).name};
 
-if ~isempty(imfSet)
-    % show information
-    fprintf('Working in Directory : %s \t', infd);
+if ~isempty(gifSet) && ~overwriteGif
+    % copy gif files to output folder in force (ignore exist file in output folder)
+    cellfun(@(fname) copyfile(fname, outfd, 'f'), gifSet);
     
+elseif ~isempty(imfSet)
+    % show information
+    if showInfoVerbosely
+        fprintf('Working in Directory : %s \t', infd);
+    end
+        
     % fetch fname if necessary
     if isempty(fname)
         [~,fname,~] = fileparts(infd);
@@ -113,7 +127,9 @@ if ~isempty(imfSet)
         fullfile(outfd, [fname,'.gif']));
     
     % show information
-    disp('[DONE]');
+    if showInfoVerbosely
+        disp('[DONE]');
+    end
 end
 
 % append separator '-' for sub-folders, if necessary
