@@ -46,7 +46,12 @@ case 'fvp'
     
 case 'nplab-3dmotion'
     p.data.nframe = 30;
-    p.data.quantity = nplab3dCount(p.data.path);
+    % collect file name of input materials
+    flist = dir(fullfile(p.data.path, '*.gif'));
+    p.data.nameList = {flist(:).name};
+    clear flist
+    % quantity settings
+    p.data.quantity = numel(p.data.nameList);
     p.data.scope = min(p.data.quantity,5000);
 end
 
