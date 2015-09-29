@@ -10,7 +10,7 @@ function arr = randpermext(n, k)
 
 if exist('k', 'var')
     if k > n
-        arr = [repmat(1:n, 1, floor(n/k)), randperm(n, rem(k,n))];
+        arr = [repmat(1:n, 1, floor(k/n)), randperm(n, rem(k,n))];
         arr = arr(randperm(k));
     else
         arr = randperm(n, k);
