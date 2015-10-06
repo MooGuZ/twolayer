@@ -15,10 +15,10 @@ function [m,p,loglh,snr] = learnPMBase(m,p,nEpoch,param)
 if isfield(param,'nsave') && ~isempty(param.nsave)
     nSave = param.nsave;
 else
-    nSave = 1000;
+    nSave = 10000;
 end
 
-Load First Layer Responds
+% Load First Layer Responds
 if isfield(param,'rfile')
     m.rfile = param.rfile;
 else
