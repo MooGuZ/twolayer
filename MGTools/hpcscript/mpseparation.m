@@ -69,7 +69,7 @@ p.phasetrans.inference_method='minFunc_ind';
 p.data_type = 'vid075-chunks';
 
 % Save Path
-p.autosave_path = './';
+p.autosave_path = './state/20150929/';
 
 % misc
 p.use_gpu = 1;      % this flag will use the GPU through the Jacket interface

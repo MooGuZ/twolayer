@@ -41,6 +41,8 @@ m.imageEigVecs = eigVec;
 % ======= Determine Dimension of Whitening Signal =======
 varCutoff = p.whitening.pixel_noise_variance_cutoff_ratio * m.pixel_noise_variance;
 m.M = sum(eigVal > varCutoff);
+% send dimentionality information to console
+fprintf('[WHITENING] effective dimension : %d\n', m.M);
 
 eigVal = eigVal(1:m.M);
 eigVec = eigVec(:,1:m.M);
