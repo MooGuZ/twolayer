@@ -11,6 +11,8 @@ function [m,p,loglh,snr] = learnPMBase(m,p,nEpoch,param)
 % MooGu Z. <hzhu@case.edu>
 % May 28, 2014 - Version 0.1
 
+if ~exist('param', 'var'), param = struct(); end
+
 % number of iteration per save
 if isfield(param,'nsave') && ~isempty(param.nsave)
     nSave = param.nsave;
@@ -22,7 +24,8 @@ end
 if isfield(param,'rfile')
     m.rfile = param.rfile;
 else
-    [m,p,m.rfile] = cbaserespond(m,p);
+    m.rfile = fullfile(p.autosave.path, sprintf('R1L-%s.mat', datestr(now)));
+    [m,p] = collectFirstLayerRespond(m,p);
 end
 load(m.rfile,'R1L');
 
