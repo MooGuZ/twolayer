@@ -70,7 +70,7 @@ p.whitening.X_noise_var = 0.01;
 
 % MISC
 % this flag will use the GPU through the Jacket interface
-p.use_gpu = exist('gsingle','var');
+p.use_gpu = gpuDeviceCount();
 p.renorm_length = 1;    % renorm basis function lengths after each iteration
 p.normalize_crop = 0;   % normalize the data before inference
 p.whiten_patches = 1;   % operate in the whitened domain
