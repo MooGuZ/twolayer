@@ -16,15 +16,15 @@ end
 
 fprintf('Generating First Layer Responds start @ %s\n',datestr(now));
 % Initialize storage for Amplitude and Phase
-R1L.logAmp = zeros(m.N,p.imszt*p.data.quantity,'single');
-R1L.dPhase = zeros(m.N,p.imszt*p.data.quantity,'single');
+R1L.logAmp = zeros(m.N,p.data.nframe*p.data.quantity,'single');
+R1L.dPhase = zeros(m.N,p.data.nframe*p.data.quantity,'single');
 % inference one by one
 fprintf('INFER PROCESS '); infotag = 0.1;
 for i = 1 : p.data.quantity
     X = im2single(gif2anim(fullfile(p.data.path, p.data.nameList{i}), 1 : p.data.nframe));
     X = m.whitenMatrix * bsxfun(@minus, X, m.imageMean);
     Z = infer_Z(X, m, p);
-    ind = (i - 1) * p.imszt + 1 : i * p.imszt;
+    ind = (i - 1) * p.data.nframe + 1 : i * p.data.nframe;
     R1L.logAmp(:, ind) = log(abs(Z) + eps);
     R1L.dPhase(:, ind) = [angle(Z(:, 1)), ...
         wrapToPi(angle(Z(:, 2:end)) - angle(Z(:, 1:(end-1))))];

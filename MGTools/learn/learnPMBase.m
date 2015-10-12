@@ -44,8 +44,8 @@ end
 testset = randi(p.load_segments,testsz,1);
 
 % Segment Index Function
-segs = @(n) (n-1)*p.imszt+1;
-sege = @(n) n*p.imszt;
+segs = @(n) (n-1)*p.data.nframe+1;
+sege = @(n) n*p.data.nframe;
 
 % Create Map of 1st-layer Bases coordinates in space and spacial frequency
 if ~isfield(m,'Acoords'), m = fit_Acoords(m); end
