@@ -1,4 +1,4 @@
-function [m,p] = collectFirstLayerRespond(m,p,respfile)
+function [m,p] = collectFirstLayerResponds(m,p,respfile)
 % CBASERESPOND collect complex bases responds for movies
 %
 % MooGu Z. <hzhu@case.edu>
@@ -33,7 +33,7 @@ for i = 1 : p.data.quantity
         fprintf('>');
     end
 end
-fprintf(' DONE');
+fprintf(' DONE\n');
 
 % Get statistic profiles of amplitude
 m.loga_means = mean(R1L.logAmp,2);
