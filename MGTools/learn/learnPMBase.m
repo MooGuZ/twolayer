@@ -25,7 +25,7 @@ if isfield(param,'rfile')
     m.rfile = param.rfile;
 else
     m.rfile = fullfile(p.autosave.path, sprintf('R1L-%s.mat', datestr(now)));
-    [m,p] = collectFirstLayerRespond(m,p);
+    [m,p] = collectFirstLayerResponds(m,p);
 end
 load(m.rfile,'R1L');
 
