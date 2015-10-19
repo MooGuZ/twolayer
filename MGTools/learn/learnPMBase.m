@@ -29,6 +29,8 @@ else
 end
 load(m.rfile,'R1L');
 
+p.load_segments = floor(size(R1L.logAmp, 2) / p.data.nframe);
+
 % Initialized Performance Records
 snr.logamp = zeros(nEpoch,1);
 snr.dphase = zeros(nEpoch,1);
@@ -59,20 +61,19 @@ if p.use_gpu
 end
 
 for i = 1 : nEpoch
-%     I = randi(p.load_segments,nSave,1);
-    I = testset(randi(numel(testset),nSave,1));
+    I = randi(p.load_segments,nSave,1);
     for j = 1 : nSave
         if p.use_gpu
-            P = gsingle(R1L.dPhase(:,segs(I(j))+1:sege(I(j))));
+            P = gsingle(wrapToPi(R1L.dPhase(:,segs(I(j))+1:sege(I(j)))));
             A = gsingle(R1L.logAmp(:,segs(I(j)):sege(I(j))));
         else
-            P = single(R1L.dPhase(:,segs(I(j))+1:sege(I(j))));
+            P = single(wrapToPi(R1L.dPhase(:,segs(I(j))+1:sege(I(j)))))o;
             A = single(R1L.logAmp(:,segs(I(j)):sege(I(j))));
         end
         % ==INFER MOTION CODES==
         % Roll Phase Difference into [-pi,pi]
-        P(P < -pi) = P(P < -pi) + 2*pi;
-        P(P >  pi) = P(P >  pi) - 2*pi;
+%         P(P < -pi) = P(P < -pi) + 2*pi;
+%         P(P >  pi) = P(P >  pi) - 2*pi;
         % Calculate Amplitude Mask
         mask = (A >= p.phasetrans.a_thresh);
         mask = mask(:,1:end-1) & mask(:,2:end);
