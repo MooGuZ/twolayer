@@ -29,7 +29,13 @@ else
 end
 load(m.rfile,'R1L');
 
-p.load_segments = floor(size(R1L.logAmp, 2) / p.data.nframe);
+nSegments = floor(size(R1L.logAmp, 2) / p.data.nframe);
+if nSegments > 2 * p.load_segments
+    tmp = randi(nSegments - p.load_segments + 1);
+    R1L = R1L(:, (tmp - 1) * p.data.nframe + 1 : tmp * p.data.nframe);
+else
+    p.load_segments = nSegments;
+end
 
 % Initialized Performance Records
 snr.logamp = zeros(nEpoch,1);
