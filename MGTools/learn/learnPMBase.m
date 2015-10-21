@@ -67,7 +67,7 @@ for i = 1 : nEpoch
             P = gsingle(wrapToPi(R1L.dPhase(:,segs(I(j))+1:sege(I(j)))));
             A = gsingle(R1L.logAmp(:,segs(I(j)):sege(I(j))));
         else
-            P = single(wrapToPi(R1L.dPhase(:,segs(I(j))+1:sege(I(j)))))o;
+            P = single(wrapToPi(R1L.dPhase(:,segs(I(j))+1:sege(I(j)))));
             A = single(R1L.logAmp(:,segs(I(j)):sege(I(j))));
         end
         % ==INFER MOTION CODES==
@@ -79,7 +79,7 @@ for i = 1 : nEpoch
         mask = mask(:,1:end-1) & mask(:,2:end);
         % Infering and Adapting
         W = inferMCode(P,mask,m,p);
-        m.D = adaptMBase(W,P,mask,m,p);
+        [m, p] = adaptMBase(W,P,mask,m,p);
         % Update counter
         m.t(2) = m.t(2) + 1;
         % ==INFER PATTERN CODES==
@@ -88,7 +88,7 @@ for i = 1 : nEpoch
         A = bsxfun(@times,A,m.loga_factors);
         % Infering and Adapting
         V = inferPCode(A,m,p);
-        m.B = adaptPBase(V,A,m,p);
+        [m, p] = adaptPBase(V,A,m,p);
         % Update counter
         m.t(3) = m.t(3) + 1;
     end
