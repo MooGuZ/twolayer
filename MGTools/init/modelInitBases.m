@@ -59,7 +59,7 @@ switch p.ampmodel.basis_method
     case 'minFunc_ind_wd'
         p.ampmodel.B_gamma = 0.01;
         p.ampmodel.B_minFunc_ind_Opts.Method = 'cg';
-        p.ampmodel.B_minFunc_ind_Opts.Display = 'final';
+        p.ampmodel.B_minFunc_ind_Opts.Display = 'off';
         p.ampmodel.B_minFunc_ind_Opts.MaxIter = 100;
         p.ampmodel.B_minFunc_ind_Opts.MaxFunEvals = 300;
 
@@ -109,7 +109,7 @@ switch p.ampmodel.inference_method
   
     case 'minFunc_ind'
         p.ampmodel.minFunc_ind_Opts.Method = 'csd';%'csd';%'bb';%'cg';%
-        p.ampmodel.minFunc_ind_Opts.Display = 'final';
+        p.ampmodel.minFunc_ind_Opts.Display = 'off';
         p.ampmodel.minFunc_ind_Opts.MaxIter = 15;%30;
         p.ampmodel.minFunc_ind_Opts.MaxFunEvals = 20;%60;
 

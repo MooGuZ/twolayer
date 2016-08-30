@@ -19,17 +19,23 @@ end
 
 % Load Data into Memory Only Once
 if p.data.scope >= p.data.quantity
+    fprintf('Loading %d video clips ... ', p.data.scope);
     Data = loadDataBatch(m,p);
+    fprintf('Done @ %s\n', datestr(now()));
 end
 
 fprintf('\nFirst-Layer-Bases Learning (%2d Epoches) start @ %s\n',nEpoch,datestr(now));
 for iEpoch = 1 : nEpoch
     % Load Data for each Epoch, if necessary
     if p.data.scope < p.data.quantity
+        fprintf('Loading %d video clips ... ', p.data.scope);
         Data = loadDataBatch(m,p);
+        fprintf('Done @ %s\n', datestr(now()));
     end
+
+    fprintf('Learning '); infotag = 0.1;
     % Generate random sequence
-    index = randi(p.data.scope,nSave,1);
+    index = randpermext(p.data.scope,nSave);
     for iter = 1 : nSave
         if p.use_gpu
             video = gsingle(im2double(Data(:,(index(iter)-1)*p.data.nframe+1 : ...
@@ -47,13 +53,18 @@ for iEpoch = 1 : nEpoch
         % Adapt Complex Bases
         [m,p] = adapt_firstlayer(Z,I_E,m,p);
         m.t(1) = m.t(1) + 1;
+        % update console output
+        if iter/nSave >= infotag
+            infotag = infotag + 0.1;
+            fprintf('.');
+        end
     end
     iterstr = strrep(mat2str(m.t),' ',',');
     % save learning states
     save_model([p.autosave.path,'FirstLayerBases-Iteration', ...
-        iterstr,'.mat'],m,p);
-    % Output Infomation in Console
-    disp(['Learning Iteration ',iterstr,' DONE @ ',datestr(now)]);
+                iterstr,'.mat'],m,p);
+    % show information
+    fprintf(' Iteration %s DONE @ %s\n', iterstr, datestr(now()));
 end
 
 end
