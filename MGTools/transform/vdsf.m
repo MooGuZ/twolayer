@@ -35,7 +35,7 @@ tCutoff = 1e-5;
 % Estimate Standard Deviation of Gaussian Filter
 tsigma = norminv(1-tCutoff/2,0,1) / (nfrm*pi); % Time
 
-% Calculate compensate ration in FFT transform
+% Calculate compensate ratio in FFT transform
 cRatio = (orsz*ocsz) / (rsz*csz);
 % Calculate center area coordinates
 rArea = (orsz-rsz)/2 + 1 : orsz - (orsz-rsz)/2;
